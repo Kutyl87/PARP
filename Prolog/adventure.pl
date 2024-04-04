@@ -58,6 +58,16 @@ drop(_) :-
         nl.
 
 
+/* These rules describe inspection of of object */
+inspect(X) :-
+        holding(X),
+        describe(X),
+        nl.
+
+inspect(_) :-
+        write('You aren''t holding it!'),
+        nl.
+
 /* These rules define the direction letters as calls to go/1. */
 
 explore_further :- go(explore_further).
@@ -184,9 +194,7 @@ describe(third_tunnel) :- write('You cannot enter the doors. There is not a plac
 describe(dealer_room) :- write('You have entered a Jew dealer space. He wants to sell you a magic flute, but he do not specified its aim. Maybe it can be useful? He wants to help him, it will cost you 60 energy.'), nl.
 describe(aligator_room) :- write('You have entered an Aligator space. There is a huge reptile at the back. Fight could be difficult and demanding. Would you try?'), nl.
 describe(waterfall) :- write('You have entered a waterfall. You can see a light at the end of the tunnel. You are carried away by the current of water.'), die, nl.
-read_note :- 
-        holding(note),
-        write('You read the note from a lost wanderer. It says: "You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - that\'s the path you should take. The third one may hold a secret. Choose wisely."'), nl.
+describe(note) :- write('You read the note from a lost wanderer. It says: "You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - that\'s the path you should take. The third one may hold a secret. Choose wisely."'), nl.
 take_rest :-
         energy(E),
         max_energy(MaxE),
