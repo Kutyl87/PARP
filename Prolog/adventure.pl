@@ -5,16 +5,35 @@
 
 i_am_at(entrance).
 
-path(entrance, explore_further, hall).
-path(hall, visit_first_tunnel, first_tunnel).
-path(hall, visit_second_tunnel, second_tunnel).
-path(hall, visit_third_tunnel, third_tunnel).
-path(first_tunnel, go_back_to_hall, hall).
-path(first_tunnel, explore_further, dealer_room).
-path(second_tunnel, go_back_to_hall, hall).
-path(third_tunnel, go_back_to_hall, hall).
-path(dealer_room, explore_further, aligator_room).
-path(aligator_room, explore_further, waterfall).
+path(entrance, forward, hall).
+
+path(hall, right, in_front_of_first_tunnel).
+path(hall, forward, in_front_of_second_tunnel).
+path(hall, left, in_front_of_third_tunnel).
+
+path(in_front_of_first_tunnel, foward, first_tunnel).
+path(in_front_of_second_tunnel, forward, second_tunnel).
+path(in_front_of_third_tunnel, forward, third_tunnel).
+
+path(in_front_of_first_tunnel, back, hall).
+path(in_front_of_second_tunnel, back, hall).
+path(in_front_of_third_tunnel, back, hall).
+
+path(in_front_of_first_tunnel, left, in_front_of_second_tunnel).
+path(in_front_of_second_tunnel, right, in_front_of_first_tunnel).
+path(in_front_of_second_tunnel, left, in_front_of_third_tunnel).
+path(in_front_of_third_tunnel, right, in_front_of_second_tunnel).
+
+path(first_tunnel, back, in_front_of_first_tunnel).
+path(first_tunnel, forward, dealer_room).
+
+path(second_tunnel, back, in_front_of_second_tunnel).
+
+path(third_tunnel, back, in_front_of_third_tunnel).
+
+path(dealer_room, forward, aligator_room).
+path(aligator_room, forward, waterfall).
+
 at(note, entrance).
 max_energy(100).
 energy(100).
@@ -79,6 +98,7 @@ use(flute) :-
         holding(flute),
         write(' You have used a flute. Its sounds reverberate around you.'),
         nl.
+
 use(X) :-
         holding(X),
         describe(X),
@@ -89,9 +109,9 @@ use(_) :-
         nl.
 /* These rules define the direction letters as calls to go/1. */
 
-explore_further :- go(explore_further).
+forward :- go(forward).
 
-go_back_to_hall :- go(go_back_to_hall).
+back :- go(back).
 
 visit_first_tunnel :- go(visit_first_tunnel).
 
@@ -186,7 +206,8 @@ instructions :-
         write('Enter commands using standard Prolog syntax.'), nl,
         write('Available commands are:'), nl,
         write('start.             -- to start the game.'), nl,
-        write('n.  s.  e.  w.     -- to go in that direction.'), nl,
+        write('go(Direction)      -- to go in that direction.'), nl,
+        write('Available directions: forward, back, left, right'), nl,
         write('take(Object).      -- to pick up an object.'), nl,
         write('drop(Object).      -- to put down an object.'), nl,
         write('inspect(Object).   -- to inspect an object.'), nl,
@@ -209,10 +230,14 @@ start :-
 
 describe(entrance) :- write('You are in the entrance. You notice doors behind you, and you feel pain inside your head. There is a small note at the floor. Maybe you should inspect it?'), nl.
 describe(hall) :- write('There is a hall with 3 tunnels. There must be a way to get out of there.'), nl.
-describe(first_tunnel) :- write('You are in the first tunnel. You can smell a blood inside. It seems to be a bad way to escape.'), nl.
+describe(in_front_of_first_tunnel) :- write('You are standing in front of the rightmost tunnel.'), nl.
+describe(in_front_of_second_tunnel) :- write('You are standing in front of the middle tunnel.'), nl.
+describe(in_front_of_third_tunnel) :- write('You are standing in front of the leftmost tunnel'), nl.
+
+describe(first_tunnel) :- write('You are in the first tunnel. You can smell blood inside. It seems to be a bad way to escape.'), nl.
 describe(second_tunnel) :- write('You are in the second tunnel. You can see a light at the end of a tunnel. Maybe this is a way to escape?'), nl.
-describe(third_tunnel) :- write('You cannot enter the doors. There is not a place to enter a key. Maybe a magic item can open them?'), nl.
-describe(dealer_room) :- write('You have entered a Jew dealer space. He wants to sell you a magic flute, but he do not specified its aim. Maybe it can be useful? He wants to help him, it will cost you 60 energy.'), nl.
+describe(third_tunnel) :- write('You cannot open the door. There is no place to insert a key. Maybe a magic item can open them?'), nl.
+describe(dealer_room) :- write('You have entered a Jewish dealer''s space. He wants to sell you a magic flute, but he do not specified its aim. Maybe it can be useful? He wants to help him, it will cost you 60 energy.'), nl.
 describe(aligator_room) :- write('You have entered an Aligator space. There is a huge reptile at the back. Fight could be difficult and demanding. Would you try?'), nl.
 describe(waterfall) :- write('You have entered a waterfall. You can see a light at the end of the tunnel. You are carried away by the current of water.'), die, nl.
 describe(note) :- write('You read the note from a lost wanderer. It says: "You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - that\'s the path you should take. The third one may hold a secret. Choose wisely."'), nl.
