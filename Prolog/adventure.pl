@@ -58,7 +58,7 @@ drop(_) :-
         nl.
 
 
-/* These rules describe inspection of of object */
+/* These rules describe inspection of an object */
 inspect(X) :-
         holding(X),
         describe(X),
@@ -68,6 +68,25 @@ inspect(_) :-
         write('You aren''t holding it!'),
         nl.
 
+/* These rules describe using an object - the key that is broken in half */
+use(flute) :-
+        holding(flute),
+        i_am_at(aligator_room),
+        write(' You have used a magic flute. Aligator is obey. You can use him as a form of transport.'), 
+        nl.
+
+use(flute) :- 
+        holding(flute),
+        write(' You have used a flute. Its sounds reverberate around you.'),
+        nl.
+use(X) :-
+        holding(X),
+        describe(X),
+        nl.
+
+use(_) :-
+        write('You aren''t holding it!'),
+        nl.
 /* These rules define the direction letters as calls to go/1. */
 
 explore_further :- go(explore_further).
@@ -170,9 +189,11 @@ instructions :-
         write('n.  s.  e.  w.     -- to go in that direction.'), nl,
         write('take(Object).      -- to pick up an object.'), nl,
         write('drop(Object).      -- to put down an object.'), nl,
+        write('inspect(Object).   -- to inspect an object.'), nl,
+        write('use(Object).       -- to use an object.'), nl,
         write('look.              -- to look around you again.'), nl,
         write('instructions.      -- to see this message again.'), nl,
-        write('halt.              -- to end the game and quit.'), nl,
+        write('finish.            -- to end the game and quit.'), nl,
         nl.
 
 
