@@ -26,7 +26,11 @@ path(in_front_of_third_tunnel, right, in_front_of_second_tunnel).
 
 path(first_tunnel, back, in_front_of_first_tunnel).
 path(first_tunnel, forward, dealer_room).
-/*TODO: Finish navigation for first tunnel */
+path(dealer_room, back, first_tunnel).
+
+path(dealer_room, forward, aligator_room).
+path(aligator_room, back, dealer_room).
+path(aligator_room, forward, waterfall).
 
 path(second_tunnel, back, in_front_of_second_tunnel).
 path(second_tunnel, forward, tunnel_diggers).
@@ -38,8 +42,7 @@ path(second_tunnel_1, back, tunnel_diggers).
 
 path(third_tunnel, back, in_front_of_third_tunnel).
 
-path(dealer_room, forward, aligator_room).
-path(aligator_room, forward, waterfall).
+
 
 at(note, entrance).
 max_energy(100).
@@ -67,8 +70,8 @@ take(flute) :-
         retract(energy(E)),
         NewE is E - 50,
         assert(energy(NewE)),
-        write('You have bought a magic flute. You have '), write(NewE), write(' energy left.'),
-        assert(holding(magic_flute)),
+        assert(holding(flute)),
+        write('You have bought a magic flute. You have '), write(NewE), write(' energy left.'), !,
         nl.
 
 take(X) :-
@@ -96,12 +99,15 @@ inspect(_) :-
 use(flute) :-
         holding(flute),
         i_am_at(aligator_room),
-        write(' You have used a magic flute. Aligator is obey. You can use him as a form of transport.'), 
+        write('You have used a magic flute. Aligator obeys you now. You can use him as a form of transport.'),
+        retractall(travelling_cost(_)),
+        assert(travelling_cost(0)),
+        take(aligator), !, 
         nl.
 
 use(flute) :- 
         holding(flute),
-        write(' You have used a flute. Its sounds reverberate around you.'),
+        write('You have used a flute. Its sounds reverberate around you.'),
         nl.
 
 use(X) :-
@@ -134,6 +140,8 @@ go(Direction) :-
 go(_) :-
     write('You can''t go that way or you are out of energy.'),
     nl.
+
+/*misc commands*/
 
 
 /* This rule tells how to look about you. */
@@ -238,7 +246,7 @@ describe(second_tunnel_1) :-
 
 describe(third_tunnel) :- write('You cannot open the door. There is no place to insert a key. Maybe a magic item can open them?'), nl.
 describe(dealer_room) :- write('You have entered a Jewish dealer''s space. He wants to sell you a magic flute, but he do not specified its aim. Maybe it can be useful? He wants to help him, it will cost you 60 energy. (use take(flute) to buy the flute)'), nl.
-describe(aligator_room) :- write('You have entered an Aligator space. There is a huge reptile at the back. Fight could be difficult and demanding. Would you try?'), nl.
+describe(aligator_room) :- write('You have entered an Aligator space. There is a huge reptile at the back. Fight could be difficult and demanding. Would you try? (Type fight to fight)'), nl.
 describe(waterfall) :- write('You have entered a waterfall. You can see a light at the end of the tunnel. You are carried away by the current of water.'), die, nl.
 describe(note) :- write('You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely. (Press ENTER to continue)'), nl.
 describe(aligator) :- write('The aligator is huge, and its scales glisten in the dimmly lit tunnel.'), nl.
@@ -278,6 +286,8 @@ show_max_energy_level :-
 
 ignore_dealer:-
         write('You hear a voice : "You will regret it!"'), nl.
+
+/* TODO randomize energy loss*/
 
 fight:-
         energy(E),
