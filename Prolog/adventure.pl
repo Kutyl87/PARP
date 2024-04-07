@@ -395,6 +395,8 @@ describe(aligator) :- write('The aligator is huge, and its scales glisten in the
 describe(flute) :- write('A wooden flute. You can feel some energy emanating from it.'), nl.
 describe(tunnel_diggers) :-
         holding(stone_tablet_1),
+        \+ holding(stone_tablet_2),
+        \+ holding(stone_tablet),
         rat_king_defeated(true),
         write('The miners happily greet you. They offer you a broken half of a stone tablet as thanks. You can feel magical energy from it.'), nl,
         write('Would you like to take the tablet? (Use take(stone_tablet_2) to take it)'),
@@ -403,7 +405,6 @@ describe(tunnel_diggers) :-
 
 describe(tunnel_diggers) :-
         rat_king_defeated(true),
-        holding(stone_tablet_2),
         write('You stand at the entrance to the side tunnel. The miners have moved back into the side tunnel to keep digging.'),
         nl.
 
