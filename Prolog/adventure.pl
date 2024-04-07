@@ -1,7 +1,10 @@
 /* <The name of this game>, by <your name goes here>. */
+:- use_module(library(random)).
 
-:- dynamic i_am_at/1, at/2, holding/1, energy/1, max_energy/1, resting_pace/1, alive/1, travelling_cost/1, rats_defeated/1.
-:- retractall(at(_, _)), retractall(i_am_at(_)), retractall(alive(_)).
+
+:- dynamic i_am_at/1, at/2, holding/1, energy/1, max_energy/1, resting_pace/1, alive/1, travelling_cost/1, rat_king_defeated/1, riddle_num/1, riddle_answer/1.
+:- retractall(at(_, _)), retractall(i_am_at(_)), retractall(alive(_)), retractall(rat_king_defeated(_)).
+:- assert(rat_king_defeated(false)).
 
 i_am_at(entrance).
 
@@ -45,6 +48,10 @@ path(third_tunnel, back, in_front_of_third_tunnel).
 
 
 at(note, entrance).
+at(aligator, aligator_room).
+at(flute, dealer_room).
+at(side_tunnnel, stone_tablet_1).
+
 max_energy(100).
 energy(100).
 resting_pace(10).
@@ -74,6 +81,12 @@ take(flute) :-
         write('You have bought a magic flute. You have '), write(NewE), write(' energy left.'), !,
         nl.
 
+take(stone_tablet_1) :-
+        i_am_at(side_tunnnel),
+        rat_king_defeated(true),
+        assert(holding(stone_tablet_1)),
+        write('OK.'), !, nl.
+
 take(X) :-
         i_am_at(Place),
         at(X, Place),
@@ -100,9 +113,8 @@ use(flute) :-
         holding(flute),
         i_am_at(aligator_room),
         write('You have used a magic flute. Aligator obeys you now. You can use him as a form of transport.'),
-        retractall(travelling_cost(_)),
-        assert(travelling_cost(0)),
-        take(aligator), !, 
+        travelling_cost(0),
+        take(aligator), 
         nl.
 
 use(flute) :- 
@@ -142,7 +154,58 @@ go(_) :-
     nl.
 
 /*misc commands*/
+riddle :-
+        riddle_num(X),
+        write('Here is riddle '), write(X), nl,
+        random_between(1, 10, X1), random_between(1, 10, X2),
+        write('What is '), write(X1), write('+'), write(X2), write(' ?'), nl,
+        write('Use answer(X) to answer'),
+        A is X1 + X2,
+        retractall(riddle_answer(_)),
+        assert(riddle_answer(A)),
+        nl.
 
+yes :-
+        i_am_at(side_tunnnel),
+        rat_king_defeated(false),
+        retractall(riddle_num(_)),
+        retractall(riddle_answer(_)),
+        assert(riddle_num(1)),
+        riddle,
+        nl.
+
+answer(Ans) :-
+        i_am_at(side_tunnnel),
+        rat_king_defeated(false),
+        riddle_num(N),
+        N < 3,
+        riddle_answer(X),
+        Ans == X,
+        write('You are correct!'),
+        retractall(riddle_num(_)),
+        N is N + 1,
+        assert(riddle_num(N)), !,
+        nl.
+
+answer(Ans) :-
+        i_am_at(side_tunnnel),
+        rat_king_defeated(false),
+        riddle_num(N),
+        N == 3,
+        riddle_answer(X),
+        Ans == X,
+        write('''You are correct! This was the last riddle. You have answered them all! I shall leave now. Before I go, take this for you gallant efforts.'''), nl,
+        write('The Great Rat King hands you a broken stone tablet. Do you want to take it? (Type take(stone_tablet_1) to take it.)'), nl,
+        retract(rat_king_defeated(false)),
+        assert(rat_king_defeated(true)),!.
+
+answer(Ans) :-
+        riddle_answer(X),
+        not(Ans == X),
+        i_am_at(side_tunnnel),
+        rat_king_defeated(false),
+        write('''Wrong! Your life ends here!'''), nl,
+        die.
 
 /* This rule tells how to look about you. */
 
@@ -207,7 +270,6 @@ instructions :-
         write('go(Direction)      -- to go in that direction.'), nl,
         write('Available directions: forward, back, left, right'), nl,
         write('take(Object).      -- to pick up an object.'), nl,
-        write('drop(Object).      -- to put down an object.'), nl,
         write('inspect(Object).   -- to inspect an object.'), nl,
         write('use(Object).       -- to use an object.'), nl,
         write('look.              -- to look around you again.'), nl,
@@ -244,23 +306,35 @@ describe(second_tunnel_1) :-
         die,
         nl.
 
+describe(side_tunnnel) :- rat_king_defeated(false),
+        write('You are in a narrow, crudely built tunnel. Deep inside you can see the towering shadow of a giant rat.'), 
+        nl,
+        write('''Greeting, traveler. What do you seek from the Great Rat King?'''),
+        nl,
+        write('You explain that the miners would like to pass.'), 
+        nl,
+        write('''I shall grant your demand if you can answer my riddles. But if you fail, you shall perish at my hand. Do you take up the challenge?(Type yes or no)'),
+        nl.
+
+describe(side_tunnnel) :- rat_king_defeated(true),
+        write('You are in a narrow, crudely built tunnel. The miners have returned and continue to work.'), nl.
+
 describe(third_tunnel) :- write('You cannot open the door. There is no place to insert a key. Maybe a magic item can open them?'), nl.
 describe(dealer_room) :- write('You have entered a Jewish dealer''s space. He wants to sell you a magic flute, but he do not specified its aim. Maybe it can be useful? He wants to help him, it will cost you 60 energy. (use take(flute) to buy the flute)'), nl.
 describe(aligator_room) :- write('You have entered an Aligator space. There is a huge reptile at the back. Fight could be difficult and demanding. Would you try? (Type fight to fight)'), nl.
 describe(waterfall) :- write('You have entered a waterfall. You can see a light at the end of the tunnel. You are carried away by the current of water.'), die, nl.
 describe(note) :- write('You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely. (Press ENTER to continue)'), nl.
 describe(aligator) :- write('The aligator is huge, and its scales glisten in the dimmly lit tunnel.'), nl.
-
+describe(flute) :- write('A wooden flute. You can feel some energy emanating from it.'), nl.
 describe(tunnel_diggers) :-
         holding(stone_tablet_1),
-        rats_defeated(true),
-        write('The miners happily greet you. They offer you a broken half of a stone tablet as thanks. You can feel magical energy from it.'), nl,
-        write('Would you like to take the tablet? (Use take(tablet_2) to take it)'),
+        holding(stone_tablet_2),
+        write('The miners happily greet you.'), nl,
         nl.
 
 
 describe(tunnel_diggers) :-
-        rats_defeated(true),
+        rat_king_defeated(true),
         write('You stand at the entrance to the side tunnel. The miners have moved back into the side tunnel to keep digging.'),
         nl.
 
@@ -292,7 +366,9 @@ ignore_dealer:-
 fight:-
         energy(E),
         retract(energy(E)),
-        NewE is E - 50,
+        % NewE is E - 50,
+        random_between(0, 50, ELoss),
+        NewE is E - ELoss,
         assert(energy(NewE)),
         write('You have fought with an aligator. You have '), write(NewE), write(' energy left.'), nl,
         (NewE =< 0 ->write('You are out of energy') ,die ; true),
