@@ -192,9 +192,10 @@ answer(Ans) :-
         Ans == X,
         write('You are correct!'),
         retractall(riddle_num(_)),
-        N is N + 1,
-        assert(riddle_num(N)), !,
-        nl.
+        NewN is N + 1,
+        assert(riddle_num(NewN)), !,
+        nl,
+        riddle.
 
 answer(Ans) :-
         i_am_at(side_tunnnel),
@@ -206,11 +207,11 @@ answer(Ans) :-
         write('''You are correct! This was the last riddle. You have answered them all! I shall leave now. Before I go, take this for you gallant efforts.'''), nl,
         write('The Great Rat King hands you a broken stone tablet. Do you want to take it? (Type take(stone_tablet_1) to take it.)'), nl,
         retract(rat_king_defeated(false)),
-        assert(rat_king_defeated(true)),!.
+        assert(rat_king_defeated(true)).
 
-answer(Ans) :-
-        riddle_answer(X),
-        not(Ans == X),
+answer(_) :-
+        i_am_at(side_tunnnel),
+        rat_king_defeated(false),
         i_am_at(side_tunnnel),
         rat_king_defeated(false),
         write('''Wrong! Your life ends here!'''), nl,
@@ -376,7 +377,7 @@ describe(aligator) :- write('The aligator is huge, and its scales glisten in the
 describe(flute) :- write('A wooden flute. You can feel some energy emanating from it.'), nl.
 describe(tunnel_diggers) :-
         holding(stone_tablet_1),
-        rats_defeated(true),
+        rat_king_defeated(true),
         write('The miners happily greet you. They offer you a broken half of a stone tablet as thanks. You can feel magical energy from it.'), nl,
         write('Would you like to take the tablet? (Use take(stone_tablet_2) to take it)'),
         nl.
