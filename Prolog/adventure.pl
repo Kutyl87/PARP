@@ -183,6 +183,13 @@ yes :-
         riddle,
         nl.
 
+no :-
+        i_am_at(side_tunnnel),
+        rat_king_defeated(false),
+        write('Fare well, then.'),
+        nl,
+        go(back).
+
 answer(Ans) :-
         i_am_at(side_tunnnel),
         rat_king_defeated(false),
