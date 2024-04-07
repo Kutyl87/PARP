@@ -34,6 +34,7 @@ path(dealer_room, back, first_tunnel).
 path(dealer_room, forward, aligator_room).
 path(aligator_room, back, dealer_room).
 path(aligator_room, forward, end_of_first_tunnel).
+path(end_of_first_tunnel, back, aligator_room).
 path(end_of_first_tunnel, forward, waterfall).
 
 path(second_tunnel, back, in_front_of_second_tunnel).
@@ -51,7 +52,6 @@ path(third_tunnel, forward, synagogue).
 
 at(note, entrance).
 at(aligator, aligator_room).
-at(flute, dealer_room).
 at(side_tunnnel, stone_tablet_1).
 
 max_energy(100).
@@ -116,9 +116,10 @@ use(flute) :-
         holding(flute),
         i_am_at(aligator_room),
         write('You have used a magic flute. Aligator obeys you now. You can use him as a form of transport.'),
-        travelling_cost(0),
+        retractall(travelling_cost(_)),
+        assert(travelling_cost(0)),
         take(aligator), 
-        nl.
+        nl, !.
 
 use(flute) :- 
         holding(flute),
