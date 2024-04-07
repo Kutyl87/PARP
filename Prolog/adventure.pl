@@ -392,10 +392,11 @@ describe(tunnel_diggers) :-
 
 describe(tunnel_diggers) :-
         rat_king_defeated(true),
+        holding(stone_tablet_2),
         write('You stand at the entrance to the side tunnel. The miners have moved back into the side tunnel to keep digging.'),
         nl.
 
-describe(tunnel_diggers) :- write('You see a few people with mining tools. They tell you that they''re trying to dig a tunnel to the surface but a herd of rats stands in their way. Prehaps they will help you if you slay the rats?'), nl.
+describe(tunnel_diggers) :- write('You see a few people with mining tools. They tell you that they''re trying to dig a tunnel to the surface but a herd of rats stands in their way. They point at a crudely built tunnel entrance to the left. Prehaps they will help you if you slay the rats?'), nl.
 describe(stone_tablet_1) :- write('The left half of the stone tablet gives a weak feeling of magic power.').
 describe(stone_tablet_2) :- write('The right half of the stone tablet gives a weak feeling of magic power.').
 describe(stone_tablet) :- write('The stone tablet gives a strong feeling of magic power.').
