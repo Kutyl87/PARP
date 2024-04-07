@@ -376,8 +376,18 @@ describe(synagogue) :-
     win_game.
 
 
-describe(dealer_room) :- write('You have entered a Jewish dealer''s space. He wants to sell you a magic flute, but he do not specified its aim. Maybe it can be useful? He wants to help him, it will cost you 50 energy. (use buy(flute) to buy the flute)'), nl.
-describe(aligator_room) :- write('You have entered an Aligator space. There is a huge reptile at the back. Fight could be difficult and demanding. Would you try? (Type fight(aligator) to fight)'), nl.
+describe(dealer_room) :-
+        holding(flute),
+        write('You have entered a Jewish dealer''s space. He does not have anything else to sell.'), nl.
+describe(dealer_room) :-
+        \+ holding(flute),
+        write('You have entered a Jewish dealer''s space. He wants to sell you a magic flute, but he do not specified its aim. Maybe it can be useful? He wants to help him, it will cost you 50 energy. (use buy(flute) to buy the flute)'), nl.
+describe(aligator_room) :-
+        at(aligator, aligator_room),
+        write('You have entered an Aligator space. There is a huge reptile at the back. Fight could be difficult and demanding. Would you try? (Type fight(aligator) to fight)'), nl.
+describe(aligator_room) :-
+        \+ at(aligator, aligator_room),
+        write('The room where you found the aligator is now empty.'), nl.
 describe(end_of_first_tunnel) :- write('The sound of water crashing forcefully ahead fills the air. Advancing might prove to be unwise.'), nl.
 describe(waterfall) :- write('You have entered a waterfall. You can see a light at the end of the tunnel. You are carried away by the current of water.'), die, nl.
 describe(note) :- write('You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely. (Press ENTER to continue)'), nl.
@@ -398,8 +408,8 @@ describe(tunnel_diggers) :-
         nl.
 
 describe(tunnel_diggers) :- write('You see a few people with mining tools. They tell you that they''re trying to dig a tunnel to the surface but a herd of rats stands in their way. They point at a crudely built tunnel entrance to the left. Prehaps they will help you if you slay the rats?'), nl.
-describe(stone_tablet_1) :- write('The left half of the stone tablet gives a weak feeling of magic power.').
-describe(stone_tablet_2) :- write('The right half of the stone tablet gives a weak feeling of magic power.').
+describe(stone_tablet_1) :- write('The left half of the stone tablet gives a weak feeling of magic power. Can be connected with the other half using craft(stone_tablet).').
+describe(stone_tablet_2) :- write('The right half of the stone tablet gives a weak feeling of magic power. Can be connected with the other half using craft(stone_tablet).').
 describe(stone_tablet) :- write('The stone tablet gives a strong feeling of magic power.').
 
 rest :-
@@ -452,6 +462,5 @@ inventory:-
         (holding(stone_tablet) -> write('stone_tablet'), nl, true; true),
         (holding(stone_tablet_2) -> write('stone_tablet_2'), nl, true; true),
         (holding(flute) -> write('flute'), nl, true; true),
-        (holding(stone_tablet_1) -> write('stone_tablet_1'), nl, true; true),
         nl,
         (holding(aligator) -> write('You are riding an aligator.'), nl, true; true).
