@@ -1,7 +1,7 @@
 -- The germ of a text adventure game
 -- Marcin Szlenk 2024
+module Main where
 
-data Path = Path{}
 introductionText = [
     "You are in the entrance. You notice doors behind you, and you feel pain inside your head. There is a small note at the floor. Maybe you should inspect it?"
     ]
@@ -29,8 +29,7 @@ printInstructions = printLines instructionsText
 readCommand :: IO String
 readCommand = do
     putStr "> "
-    xs <- getLine
-    return xs
+    getLine
     
 -- note that the game loop may take the game state as
 -- an argument, eg. gameLoop :: State -> IO ()
