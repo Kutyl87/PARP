@@ -1,12 +1,12 @@
-module Location where 
+module Locations where 
 
-import Item
+import Items
 
-data Direction = Forward | Back | Left | Right deriving (Eq, Ord)
+data Direction = Forward | Back | Left | Right deriving (Eq)
 
 data Path = Path{
     direction::Direction,
-    to::String
+    to::Location
 } deriving(Eq)
 
 data Location = Location{

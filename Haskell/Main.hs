@@ -2,6 +2,9 @@
 -- Marcin Szlenk 2024
 module Main where
 
+import Items
+import Locations
+
 introductionText = [
     "You are in the entrance. You notice doors behind you, and you feel pain inside your head. There is a small note at the floor. Maybe you should inspect it?"
     ]
@@ -15,7 +18,7 @@ instructionsText = [
     "take [object]",
     "inspect [object]",
     "look",
-    "quit          -- to end the game and quit.",
+    "quit -- to end the game and quit.",
     ""
     ]
 
@@ -48,3 +51,4 @@ main = do
     printInstructions
     gameLoop
 
+-- funkcje zwracają stringi, funkcja głowna wypisuje
