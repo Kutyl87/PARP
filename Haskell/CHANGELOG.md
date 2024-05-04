@@ -1,4 +1,4 @@
-# Revision history for PARP-Adventure
+# Revision history for Adventure
 
 ## 0.1.0.0 -- YYYY-mm-dd
 
