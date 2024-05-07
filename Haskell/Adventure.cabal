@@ -59,7 +59,7 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  Locations, Items, Player, Game
+    exposed-modules:  Locations, Items, Game
 
     -- Modules included in this library but not exported.
     -- other-modules: 
