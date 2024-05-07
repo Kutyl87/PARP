@@ -59,7 +59,7 @@ library
     import:           warnings
 
     -- Modules exported by the library.
-    exposed-modules:  Locations, Items
+    exposed-modules:  Locations, Items, Player, Game
 
     -- Modules included in this library but not exported.
     -- other-modules: 
@@ -93,7 +93,6 @@ executable Adventure
     build-depends:
         base ^>=4.17.2.1,
         Adventure
-
     -- Directories containing source files.
     hs-source-dirs:   app
 

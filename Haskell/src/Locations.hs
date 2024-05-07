@@ -15,3 +15,10 @@ data Location = Location{
     items::[Item],
     pahts::[Path]
 } deriving(Eq)
+
+entrance :: Location
+entrance = Location
+    "Entrance"
+    "The entrance to the tunnel"
+    [Items.note]
+    []

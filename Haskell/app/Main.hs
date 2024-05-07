@@ -2,13 +2,15 @@
 -- Marcin Szlenk 2024
 module Main where
 
-import Items
-import Locations
+import Items ()
+import Locations ()
 
+introductionText :: [String]
 introductionText = [
     "You are in the entrance. You notice doors behind you, and you feel pain inside your head. There is a small note at the floor. Maybe you should inspect it?"
     ]
 
+instructionsText :: [String]
 instructionsText = [
     "Available commands are:",
     "",
@@ -26,7 +28,9 @@ instructionsText = [
 printLines :: [String] -> IO ()
 printLines xs = putStr (unlines xs)
                   
+printIntroduction :: IO ()
 printIntroduction = printLines introductionText
+printInstructions :: IO ()
 printInstructions = printLines instructionsText
 
 readCommand :: IO String
@@ -46,6 +50,7 @@ gameLoop = do
         _ -> do printLines ["Unknown command.", ""]
                 gameLoop
 
+main :: IO ()
 main = do
     printIntroduction
     printInstructions
