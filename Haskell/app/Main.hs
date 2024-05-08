@@ -2,8 +2,11 @@
 -- Marcin Szlenk 2024
 module Main where
 
-import Items ()
-import Locations ()
+import qualified Items
+import qualified Locations
+import qualified Game
+
+import Data.List.Split (splitOn)
 
 introductionText :: [String]
 introductionText = [
@@ -37,23 +40,28 @@ readCommand :: IO String
 readCommand = do
     putStr "> "
     getLine
-    
+
 -- note that the game loop may take the game state as
 -- an argument, eg. gameLoop :: State -> IO ()
-gameLoop :: IO ()
-gameLoop = do
+gameLoop :: Game.GameState->IO ()
+gameLoop gs = do
+    print (Game.message gs)
     cmd <- readCommand
-    case cmd of
+    let cmdArgs = splitOn " " cmd
+    case head cmdArgs of 
         "instructions" -> do printInstructions
-                             gameLoop
+                             gameLoop gs
+        "inspect" -> let ngs = Game.describe gs (cmdArgs!!1) in 
+                     gameLoop ngs
         "quit" -> return ()
         _ -> do printLines ["Unknown command.", ""]
-                gameLoop
+                gameLoop gs
 
 main :: IO ()
 main = do
     printIntroduction
     printInstructions
-    gameLoop
+    let gs = Game.initGameState
+    gameLoop gs
 
 -- funkcje zwracają stringi, funkcja głowna wypisuje
