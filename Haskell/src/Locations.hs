@@ -2,8 +2,6 @@ module Locations where
 
 import Items ( note, Item )
 import Data.Map (Map, fromList, lookup)
-import Data.List (isInfixOf)
-import Data.Text (toLower)
 
 data Direction = Forward | Back | Left | Right deriving (Eq, Ord)
 

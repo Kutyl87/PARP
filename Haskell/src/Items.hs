@@ -1,8 +1,6 @@
 module Items where
 
 import Data.Map (Map)
--- import Data.Typeable (typeOf)
-import Data.List (isInfixOf)
 import qualified Data.Map as Map
 
 

@@ -3,9 +3,8 @@ module Game where
 import qualified Items
 import qualified Locations
 
-import Data.Maybe (fromMaybe)
 import qualified Data.Map (Map, lookup, fromList)
-import Data.Maybe (isJust, isNothing, fromMaybe)
+import Data.Maybe (isNothing, fromMaybe)
 import Locations (strToDir)
 
 data Event = RatKingDefeated deriving Eq
