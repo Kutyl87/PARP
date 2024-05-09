@@ -14,7 +14,6 @@ data Item = Item{
 recpies :: Map String [String]
 recpies = Map.fromList [("Stone tablet", ["Stone tablet half", "Stone tablet half"])]
 
-
 note :: Item
 note = Item
     "Note"
@@ -29,7 +28,7 @@ placeholderItem = Item
 countItems::[Item]->String->Int
 countItems [] _ = 0
 countItems (x:xs) s =
-    if s `isInfixOf` name x
+    if s == name x
         then 1+countItems xs s
         else countItems xs s
 
@@ -42,6 +41,6 @@ getItem xs _ = Just (head xs)
 getItemDescription::[Item]->String->Maybe String
 getItemDescription [] _ = Nothing
 getItemDescription (x:xs) s =
-    if s `isInfixOf` name x
+    if s == name x
         then Just (description x)
         else getItemDescription xs s

@@ -8,11 +8,6 @@ import qualified Game
 
 import Data.List.Split (splitOn)
 
-introductionText :: [String]
-introductionText = [
-    "You are in the entrance. You notice doors behind you, and you feel pain inside your head. There is a small note at the floor. Maybe you should inspect it?"
-    ]
-
 instructionsText :: [String]
 instructionsText = [
     "Available commands are:",
@@ -30,9 +25,7 @@ instructionsText = [
 -- print strings from list in separate lines
 printLines :: [String] -> IO ()
 printLines xs = putStr (unlines xs)
-                  
-printIntroduction :: IO ()
-printIntroduction = printLines introductionText
+
 printInstructions :: IO ()
 printInstructions = printLines instructionsText
 
@@ -45,7 +38,7 @@ readCommand = do
 -- an argument, eg. gameLoop :: State -> IO ()
 gameLoop :: Game.GameState->IO ()
 gameLoop gs = do
-    print (Game.message gs)
+    printLines [Game.message gs]
     cmd <- readCommand
     let cmdArgs = splitOn " " cmd
     case head cmdArgs of 
@@ -53,15 +46,16 @@ gameLoop gs = do
                              gameLoop gs
         "inspect" -> let ngs = Game.describe gs (cmdArgs!!1) in 
                      gameLoop ngs
+        "go" -> gameLoop (Game.go gs (cmdArgs!!1))
         "quit" -> return ()
         _ -> do printLines ["Unknown command.", ""]
                 gameLoop gs
 
 main :: IO ()
 main = do
-    printIntroduction
     printInstructions
     let gs = Game.initGameState
+    putStr "> "
     gameLoop gs
 
 -- funkcje zwracają stringi, funkcja głowna wypisuje
