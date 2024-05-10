@@ -7,6 +7,7 @@ import qualified Locations
 import qualified Game
 
 import Data.List.Split (splitOn)
+import Game (GameState(message))
 
 instructionsText :: [String]
 instructionsText = [
@@ -48,8 +49,7 @@ gameLoop gs = do
                      gameLoop ngs
         "go" -> gameLoop (Game.go gs (cmdArgs!!1))
         "quit" -> return ()
-        _ -> do printLines ["Unknown command.", ""]
-                gameLoop gs
+        _ -> do gameLoop gs {message = "Unknown command"}
 
 main :: IO ()
 main = do
