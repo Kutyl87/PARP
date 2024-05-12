@@ -2,7 +2,7 @@ module Game where
 
 import qualified Items
 import qualified Locations
-import qualified Data.Map (Map, lookup, fromList, empty, update, adjust, insert)
+import qualified Data.Map (Map, lookup, fromList, empty, insert)
 import Data.Maybe (isNothing, fromMaybe, fromJust)
 import Locations (strToDir)
 
@@ -20,11 +20,11 @@ data GameState = GameState{
 initGameState::GameState
 initGameState = GameState
     Data.Map.empty
-    "Entrance"
+    "entrance"
     "You are at the entrance"
-    (Data.Map.fromList [("Entrance", Locations.entrance),
+    (Data.Map.fromList [("entrance", Locations.entrance),
     ("Tunnel 1", Locations.tunnel_1)])
-    (Data.Map.fromList [("Note", Items.note)])
+    (Data.Map.fromList [("note", Items.note)])
     []
 
 describe::GameState->String->GameState
