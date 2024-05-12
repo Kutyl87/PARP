@@ -1,7 +1,6 @@
 module Locations where 
 
-import Items ( note, Item )
-import Data.Map (Map, fromList, lookup)
+import Data.Map (Map, fromList, lookup, empty)
 
 data Direction = Forward | Back | Left | Right deriving (Eq, Ord)
 
@@ -18,7 +17,7 @@ getLocationStringAtDir l d = Data.Map.lookup d (paths l)
 data Location = Location{
     name::String,
     description::String,
-    items::[Item],
+    items::Data.Map.Map String Int,
     paths::Map Direction String
 }
 
@@ -28,12 +27,12 @@ entrance :: Location
 entrance = Location
     "Entrance"
     "The entrance to the tunnel"
-    [Items.note]
+    (Data.Map.fromList [("Note", 1)])
     (Data.Map.fromList [(Locations.Forward, "Tunnel 1")])
 
 tunnel_1 :: Location
 tunnel_1 = Location
     "Tunnel 1"
     "Tunnel 1"
-    []
+    Data.Map.empty
     (Data.Map.fromList [(Locations.Back, "Entrance")])

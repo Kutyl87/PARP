@@ -48,6 +48,8 @@ gameLoop gs = do
         "inspect" -> let ngs = Game.describe gs (cmdArgs!!1) in 
                      gameLoop ngs
         "go" -> gameLoop (Game.go gs (cmdArgs!!1))
+        "take" -> gameLoop (Game.take gs (cmdArgs!!1))
+        "look" -> gameLoop (Game.look gs)
         "quit" -> return ()
         _ -> do gameLoop gs {message = "Unknown command"}
 
@@ -57,5 +59,3 @@ main = do
     let gs = Game.initGameState
     putStr "> "
     gameLoop gs
-
--- funkcje zwracają stringi, funkcja głowna wypisuje
