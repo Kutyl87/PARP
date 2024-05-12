@@ -3,21 +3,19 @@ module Items where
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+note :: String
+note = "note"
 
-data Item = Item{
-    name::String,
-    description::String
-} deriving(Eq)
+stone_tablet_half :: String
+stone_tablet_half = "Stone tablet half"
+
+stone_tablet :: String
+stone_tablet = "Stone tablet"
 
 recpies :: Map String [String]
-recpies = Map.fromList [("Stone tablet", ["Stone tablet half", "Stone tablet half"])]
+recpies = Map.fromList [
+    (stone_tablet, [stone_tablet_half, stone_tablet_half])]
 
-note :: Item
-note = Item
-    "note"
-    "A note"
-
-placeholderItem::Item
-placeholderItem = Item
-    "Placeholder item"
-    "Placeholder item"
+descriptions :: Map String String
+descriptions = Map.fromList [
+    (note, "A note on the ground")]

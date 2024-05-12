@@ -1,6 +1,7 @@
 module Locations where 
 
-import Data.Map (Map, fromList, lookup, empty)
+import Data.Map (Map, fromList, toList, lookup, empty)
+import Items
 
 data Direction = Forward | Back | Left | Right deriving (Eq, Ord)
 
@@ -21,13 +22,19 @@ data Location = Location{
     paths::Map Direction String
 }
 
+printItemList::[(String, Int)]->String
+printItemList [] = ""
+printItemList (x:xs) = fst x ++ " (count: " ++ show (snd x) ++ ")\n" ++ printItemList xs
+
+listItems::Location->String
+listItems l = printItemList (Data.Map.toList (Locations.items l))
 
 
 entrance :: Location
 entrance = Location
     "Entrance"
     "The entrance to the tunnel"
-    (Data.Map.fromList [("Note", 1)])
+    (Data.Map.fromList [(Items.note, 1)])
     (Data.Map.fromList [(Locations.Forward, "Tunnel 1")])
 
 tunnel_1 :: Location

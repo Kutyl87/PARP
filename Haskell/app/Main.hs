@@ -50,6 +50,7 @@ gameLoop gs = do
         "go" -> gameLoop (Game.go gs (cmdArgs!!1))
         "take" -> gameLoop (Game.take gs (cmdArgs!!1))
         "look" -> gameLoop (Game.look gs)
+        "describe" -> gameLoop (Game.describe gs (cmdArgs!!1))
         "quit" -> return ()
         _ -> do gameLoop gs {message = "Unknown command"}
 

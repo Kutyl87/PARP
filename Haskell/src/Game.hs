@@ -13,7 +13,7 @@ data GameState = GameState{
     currentLocation::String,
     message::String,
     locations::Data.Map.Map String Locations.Location,
-    itemList::Data.Map.Map String Items.Item,
+    itemList::Data.Map.Map String Int,
     events::[Event]
 }
 
@@ -24,11 +24,11 @@ initGameState = GameState
     "You are at the entrance"
     (Data.Map.fromList [("entrance", Locations.entrance),
     ("Tunnel 1", Locations.tunnel_1)])
-    (Data.Map.fromList [("note", Items.note)])
+    (Data.Map.fromList [(Items.note, 1)])
     []
 
 describe::GameState->String->GameState
-describe gs s = gs {message = maybe "You are not holding this item!" Items.description (Data.Map.lookup s (itemList gs))}
+describe gs s = gs {message = maybe "You are not holding this item!" (const (fromMaybe "" (Data.Map.lookup s Items.descriptions))) (Data.Map.lookup s (itemList gs))}
 
 take::GameState->String->GameState
 take gs s = do
@@ -56,5 +56,5 @@ go gs ds = do
                     gs {message = Locations.description nl, currentLocation = Locations.name nl}
 
 look::GameState->GameState
-look gs = gs {message = Locations.description (getCurLocation gs)}
+look gs = gs {message = Locations.description (getCurLocation gs) ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
 
