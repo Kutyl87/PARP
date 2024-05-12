@@ -27,7 +27,18 @@ initGameState = GameState
                         ("In front of first tunnel", Locations.in_front_of_first_tunnel),
                         ("In front of second tunnel", Locations.in_front_of_second_tunnel),
                         ("In front of third tunnel", Locations.in_front_of_third_tunnel),
-                        ("First tunnel", Locations.first_tunnel)])
+                        ("First tunnel", Locations.first_tunnel),
+                        ("Dealer room", Locations.dealer_room),
+                        ("Aligator room", Locations.aligator_room),
+                        ("End of first tunnel", Locations.end_of_first_tunnel),
+                        ("Waterfall", Locations.waterfall),
+                        ("Second tunnel", Locations.second_tunnel),
+                        ("Tunnel diggers", Locations.tunnel_diggers),
+                        ("Side tunnel", Locations.side_tunnel),
+                        ("Second tunnel 1", Locations.second_tunnel_1),
+                        ("Third tunnel", Locations.third_tunnel),
+                        ("Synagogue", Locations.synagogue)])
+
     (Data.Map.fromList [(Items.note, 1)])
     []
 
