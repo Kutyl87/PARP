@@ -34,3 +34,5 @@ subtractRecipeItems i [] = i
 subtractRecipeItems i (x:xs) = let sub y = y-snd x in
     subtractRecipeItems (Map.adjust sub (fst x) i) xs
 
+cleanInventory::Data.Map.Map String Int->Data.Map.Map String Int
+cleanInventory i = Map.difference i (Map.filter (<=0) i)

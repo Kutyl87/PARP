@@ -29,7 +29,7 @@ hall :: Types.Location
 hall = Types.Location
     "Hall"
     (const "There is a hall with 3 tunnels. There must be a way to get out of there.")
-    (Data.Map.fromList [(Items.stone_tablet_half, 2)])
+    Data.Map.empty
     (Data.Map.fromList [(Types.Back, "Entrance"), (Types.Right, "In front of first tunnel"), (Types.Forward, "In front of second tunnel"), (Types.Left, "In front of third tunnel")])
 
 in_front_of_first_tunnel :: Types.Location

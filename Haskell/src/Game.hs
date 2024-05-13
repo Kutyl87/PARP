@@ -89,7 +89,7 @@ improveResting = do
     liftIO $ putStrLn $ "You have improved your resting pace. It is now " ++ show newRp ++ "."
 
 printInventory::Types.GameState->Types.GameState
-printInventory gs = gs {message = "Inventory:\n" ++ Items.printItemList (Data.Map.toList (inventory gs))}
+printInventory gs = let newInventory = Items.cleanInventory (inventory gs) in gs {message = "Inventory:\n" ++ Items.printItemList (Data.Map.toList newInventory), inventory=newInventory}
 
 getCurLocation::Types.GameState->Types.Location
 getCurLocation gs = fromJust (Data.Map.lookup (currentLocation gs) (locations gs))
@@ -120,5 +120,5 @@ craft::GameState->String->GameState
 craft gs s = let recipe = Data.Map.lookup s Items.recpies in
     if isNothing recipe then gs {message="You cannot craft this!"}
     else if Items.checkRecipeItems (inventory gs) (fromJust recipe) then
-        gs {inventory=Data.Map.insert s 1 (Items.subtractRecipeItems (inventory gs) (fromJust recipe))}
+        gs {inventory=Data.Map.insert s 1 (Items.subtractRecipeItems (inventory gs) (fromJust recipe)), message="Crafted "++s}
         else gs {message="You don't have the required items!"}
