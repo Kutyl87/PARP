@@ -6,7 +6,7 @@ import qualified Data.Map (Map, lookup, fromList, toList, empty, insert, delete)
 import Data.Maybe (isNothing, fromMaybe, fromJust)
 import Locations (strToDir)
 import System.Random (randomRIO)
-
+import Control.Monad.State
 data Event = RatKingDefeated deriving Eq
 
 data GameState = GameState{
@@ -75,6 +75,14 @@ fight gs s = do
             -- improveResting
             return gs { energy = newE, message = "You have fought with an aligator. You have " ++ show newE ++ " energy left." }
 
+type RestingPace = Int
+
+improveResting :: StateT RestingPace IO ()
+improveResting = do
+    rp <- get
+    let newRp = rp + 10
+    put newRp
+    liftIO $ putStrLn $ "You have improved your resting pace. It is now " ++ show newRp ++ "."
 printInventory::GameState->GameState
 printInventory gs = gs {message = "Inventory:\n" ++ Items.printItemList (Data.Map.toList (inventory gs))}
 
