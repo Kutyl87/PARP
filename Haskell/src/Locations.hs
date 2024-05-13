@@ -71,7 +71,7 @@ aligator_room :: Types.Location
 aligator_room = Types.Location
     "Aligator room"
     (const "You have entered an Aligator space. There is a huge reptile at the back. Fight could be difficult and demanding. Would you try? (Type fight(aligator) to fight)")
-    Data.Map.empty
+    (Data.Map.fromList [(Items.aligator, 1)])
     (Data.Map.fromList [(Types.Back, "Dealer room"), (Types.Forward, "End of first tunnel")])
 
 end_of_first_tunnel :: Types.Location

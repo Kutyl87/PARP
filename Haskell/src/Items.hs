@@ -13,6 +13,9 @@ stone_tablet_half = "Stone tablet half"
 stone_tablet :: String
 stone_tablet = "Stone tablet"
 
+aligator :: String
+aligator = "Aligator"
+
 recpies :: Map String [(String, Int)]
 recpies = Map.fromList [
     (stone_tablet, [(stone_tablet_half, 2)])]
