@@ -10,6 +10,9 @@ note = "note"
 stone_tablet_half :: String
 stone_tablet_half = "Stone tablet half"
 
+flute :: String
+flute = "Flute"
+
 stone_tablet :: String
 stone_tablet = "Stone tablet"
 

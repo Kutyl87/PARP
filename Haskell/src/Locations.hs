@@ -1,6 +1,6 @@
 module Locations where 
 
-import Data.Map (Map, fromList, toList, lookup, empty)
+import Data.Map (Map, fromList, toList, lookup, empty, member)
 import Items
 import Types
 
@@ -63,10 +63,14 @@ first_tunnel = Types.Location
 dealer_room :: Types.Location
 dealer_room = Types.Location
     "Dealer room"
-    (const "You have entered a Jewish dealer''s space. He wants to sell you a magic flute, but he do not specified its aim. Maybe it can be useful? He wants to help him, it will cost you 50 energy. (use buy(flute) to buy the flute)")
+    dealerDescription
     Data.Map.empty
     (Data.Map.fromList [(Types.Back, "First tunnel"), (Types.Forward, "Aligator room")])
-
+dealerDescription :: Types.GameState -> String
+dealerDescription gs = 
+    if Items.flute `Data.Map.member` (Types.inventory gs) 
+    then "Shalom! You already have the magic flute."
+    else "You have entered a Jewish dealer's space. He wants to sell you a magic flute, but he has not specified its purpose. Maybe it can be useful? He wants to help him, it will cost you 50 energy. (use buy(flute) to buy the flute)"
 aligator_room :: Types.Location
 aligator_room = Types.Location
     "Aligator room"

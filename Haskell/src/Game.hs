@@ -2,7 +2,7 @@ module Game where
 
 import qualified Items
 import qualified Locations
-import qualified Data.Map (Map, lookup, fromList, toList, empty, insert, delete)
+import qualified Data.Map (Map, lookup, fromList, toList, empty, insert, delete, member)
 import Data.Maybe (isNothing, fromMaybe, fromJust, maybe)
 import Locations (strToDir)
 import System.Random (randomRIO)
