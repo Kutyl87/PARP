@@ -19,10 +19,24 @@ data GameState = GameState{
 initGameState::GameState
 initGameState = GameState
     Data.Map.empty
-    "entrance"
-    "You are at the entrance"
-    (Data.Map.fromList [("entrance", Locations.entrance),
-    ("Tunnel 1", Locations.tunnel_1)])
+    "Entrance"
+    (Locations.description Locations.entrance)
+    (Data.Map.fromList [("Entrance", Locations.entrance),
+                        ("Hall", Locations.hall),
+                        ("In front of first tunnel", Locations.in_front_of_first_tunnel),
+                        ("In front of second tunnel", Locations.in_front_of_second_tunnel),
+                        ("In front of third tunnel", Locations.in_front_of_third_tunnel),
+                        ("First tunnel", Locations.first_tunnel),
+                        ("Dealer room", Locations.dealer_room),
+                        ("Aligator room", Locations.aligator_room),
+                        ("End of first tunnel", Locations.end_of_first_tunnel),
+                        ("Waterfall", Locations.waterfall),
+                        ("Second tunnel", Locations.second_tunnel),
+                        ("Tunnel diggers", Locations.tunnel_diggers),
+                        ("Side tunnel", Locations.side_tunnel),
+                        ("Second tunnel 1", Locations.second_tunnel_1),
+                        ("Third tunnel", Locations.third_tunnel),
+                        ("Synagogue", Locations.synagogue)])
     []
 
 describe::GameState->String->GameState
