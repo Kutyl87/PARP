@@ -128,8 +128,10 @@ go gs ds = do
                     if (energy gs) <= energyCost then gs {message = "You are out of energy.\nYou died. Game over.", dead = True}
                     else
                         let nl = fromMaybe Locations.entrance (Data.Map.lookup (fromMaybe "" nls) (locations gs)) in
+                            if ((Types.name nl) == (Types.name Locations.third_tunnel)) && (not (elem Types.DoorOpened (events gs))) then
+                                gs {message = "You cannot open the door. There is no place to insert a key. Maybe a magic item can open them?"}
+                                else gs {message = Types.description nl gs ++ "\n Energy: " ++ show (energy gs - energyCost), currentLocation = Types.name nl, energy = energy gs - energyCost, dead = ((Types.name nl) == (Types.name Locations.synagogue))}
 
->>>>>>> 2d83cf6 (add using items)
 rest::Types.GameState->Types.GameState
 rest gs =  do
     let newEnergy = if (energy gs + (Types.restingPace gs)) < maxEnergy gs then energy gs + (Types.restingPace gs) else maxEnergy gs
