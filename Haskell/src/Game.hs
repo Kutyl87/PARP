@@ -5,12 +5,11 @@ import qualified Locations
 import qualified Data.Map (Map, lookup, fromList, toList, empty, insert, delete, member)
 import Data.Maybe (isNothing, fromMaybe, fromJust, maybe)
 import Locations (strToDir)
-import System.Random (randomRIO)
 import Control.Monad.State
 import Types
+import System.Random (randomRIO)
 import System.IO.Unsafe (unsafePerformIO)
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
-data Event = RatKingDefeated deriving Eq
 
 
 dummyGameState::Types.GameState
@@ -24,6 +23,7 @@ dummyGameState = Types.GameState
     100
     False
     10
+    (0,0)
 
 initGameState::Types.GameState
 initGameState = Types.GameState
@@ -51,6 +51,7 @@ initGameState = Types.GameState
     100
     False
     10
+    (0,0)
 
 describe::Types.GameState->String->Types.GameState
 describe gs s = gs {message = maybe "You are not holding this item!" (const (fromMaybe "" (Data.Map.lookup s Items.descriptions))) (Data.Map.lookup s (inventory gs))}
@@ -137,7 +138,7 @@ rest gs =  do
     let newEnergy = if (energy gs + (Types.restingPace gs)) < maxEnergy gs then energy gs + (Types.restingPace gs) else maxEnergy gs
     gs {energy = newEnergy, message="You take a rest and feel better. Your energy is now " ++ show newEnergy}
 look::Types.GameState->Types.GameState
-look gs | not (null(Data.Map.toList(items (getCurLocation gs)))) = gs {message = Types.description (getCurLocation gs) gs ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
+look gs | not (null (Data.Map.toList (items (getCurLocation gs)))) = gs {message = Types.description (getCurLocation gs) gs ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
         | otherwise = gs {message = Types.description (getCurLocation gs) gs ++ "\nThere are no items here."}
 
 craft::GameState->String->GameState
@@ -156,3 +157,21 @@ use gs s = do
     else if (Data.Map.member s (Types.inventory gs)) && (s == Items.stone_tablet) && ((currentLocation gs) == Types.name Locations.in_front_of_third_tunnel) && (not (elem Types.DoorOpened (events gs)))  then
         gs {message = "As you align the stone tablet with the mysterious markings on the door, its magic surges, casting a luminous aura that seamlessly unlocks the passage ahead.", events = Types.DoorOpened:(events gs)}
     else describe gs s
+
+ratKingReject::GameState->GameState
+ratKingReject gs = let goState = go gs "back" in gs {message="You leave the Rat King's chambers. "++message goState}
+
+ratKingRiddle::GameState->Int->Int->GameState
+ratKingRiddle gs i1 i2 = gs {message="Here is the riddle : what is " ++ show i1 ++ "+" ++ show i2 ++ " (Use answer [number] to answer)", riddle=(fst (Types.riddle gs)+1, i1+i2)}
+
+ratKingAnswer::GameState->String->GameState
+ratKingAnswer gs s = let ans = read s in
+    if fst (Types.riddle gs) < 3 && ans == snd (Types.riddle gs) then gs {message="You are correct! (Use ask for the next riddle)."}
+    else if ans == snd (Types.riddle gs) then
+        gs {message="You are correct! This was the last riddle. You have answered them all! I shall leave now. Before I go, take this for you gallant efforts. The Great Rat King hands you a broken stone tablet. Do you want to take it? (Type take Stone tablet half to take it.)",
+        locations=addItemToLocation gs "Stone tablet half", events=Types.RatKingDefeated:events gs, riddle=(0,0)}
+        else
+        gs {message="Wrong! Your life ends here!", dead=True}
+
+addItemToLocation::GameState->String->Data.Map.Map String Location
+addItemToLocation gs s = Data.Map.insert (Types.currentLocation gs) (fromJust (Data.Map.lookup (Types.currentLocation gs) (Types.locations gs))) {items=Data.Map.insert s 1 (Types.items (getCurLocation gs))} (Types.locations gs)

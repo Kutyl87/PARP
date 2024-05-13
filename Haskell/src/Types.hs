@@ -13,7 +13,7 @@ data Location = Location{
     paths::Map Direction String
 }
 
-data Event = RatKingDefeated | DoorOpened deriving Eq
+data Event = RatKingDefeated | RatKingAccepted | DoorOpened deriving Eq
 
 data GameState = GameState{
     inventory::Data.Map.Map String Int,
@@ -24,5 +24,6 @@ data GameState = GameState{
     energy::Int,
     maxEnergy::Int,
     dead::Bool,
-    restingPace :: RestingPace
+    restingPace :: RestingPace,
+    riddle::(Int, Int)
 }
