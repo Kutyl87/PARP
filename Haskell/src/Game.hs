@@ -87,6 +87,7 @@ improveResting = do
     let newRp = rp + 10
     put newRp
     liftIO $ putStrLn $ "You have improved your resting pace. It is now " ++ show newRp ++ "."
+
 printInventory::Types.GameState->Types.GameState
 printInventory gs = gs {message = "Inventory:\n" ++ Items.printItemList (Data.Map.toList (inventory gs))}
 

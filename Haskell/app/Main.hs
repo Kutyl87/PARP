@@ -19,6 +19,7 @@ instructionsText = [
     "Available directions: forward, back, left, right",
     "take [object]",
     "inspect [object]",
+    "craft [object]",
     "look",
     "inventory     -- to see items in your inventory",
     "rest          -- to regenerate energy",
@@ -59,7 +60,7 @@ gameLoop gs = do
                                  gameLoop gs
             "inspect" -> gameLoop (Game.describe gs (cmdArgs!!1))
             "go" -> gameLoop (Game.go gs (cmdArgs!!1))
-            "take" -> gameLoop (Game.take gs (cmdArgs!!1))
+            "take" -> gameLoop (Game.take gs (joinArgs (tail cmdArgs)))
             "look" -> gameLoop (Game.look gs)
             "inventory" -> gameLoop (Game.printInventory gs)
             "craft" -> gameLoop (Game.craft gs (joinArgs (tail cmdArgs)))
