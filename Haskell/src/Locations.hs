@@ -1,6 +1,6 @@
 module Locations where 
 
-import Data.Map (Map, fromList, toList, lookup, empty, member)
+import Data.Map (Map, fromList, toList, lookup, empty, member, delete, insert)
 import Items
 import Types
 
@@ -71,12 +71,18 @@ dealerDescription gs =
     if Items.flute `Data.Map.member` (Types.inventory gs) 
     then "Shalom! You already have the magic flute."
     else "You have entered a Jewish dealer's space. He wants to sell you a magic flute, but he has not specified its purpose. Maybe it can be useful? He wants to help him, it will cost you 50 energy. (use buy(flute) to buy the flute)"
-aligator_room :: Types.Location
+
 aligator_room = Types.Location
     "Aligator room"
-    (const "You have entered an Aligator space. There is a huge reptile at the back. Fight could be difficult and demanding. Would you try? (Type fight(aligator) to fight)")
+    aligatorDescription
     (Data.Map.fromList [(Items.aligator, 1)])
     (Data.Map.fromList [(Types.Back, "Dealer room"), (Types.Forward, "End of first tunnel")])
+
+aligatorDescription :: Types.GameState -> String
+aligatorDescription gs = 
+    if isAligatorInLocation "Aligator room" (Types.locations gs) 
+    then "You have entered an Aligator space. There is a huge reptile at the back. Fight could be difficult and demanding. Would you try? (Type fight(aligator) to fight)"
+    else "The room where you found the aligator is now empty."
 
 end_of_first_tunnel :: Types.Location
 end_of_first_tunnel = Types.Location
@@ -153,3 +159,16 @@ synagogue = Types.Location
     \Congratulations, you have found the hidden synagogue and completed your adventure!")
     Data.Map.empty
     (Data.Map.fromList [(Types.Back, "Third tunnel")])
+
+
+isAligatorInLocation :: String -> Data.Map.Map String Location -> Bool
+isAligatorInLocation locationName locationsMap = 
+    case Data.Map.lookup locationName locationsMap of
+        Just location -> Data.Map.member Items.aligator (items location)
+        Nothing -> False
+
+removeAligatorFromLocation :: String -> Data.Map.Map String Location -> Data.Map.Map String Location
+removeAligatorFromLocation locationName locationsMap = 
+    case Data.Map.lookup locationName locationsMap of
+        Just location -> Data.Map.insert locationName (location { items = Data.Map.delete Items.aligator (items location) }) locationsMap
+        Nothing -> locationsMap
