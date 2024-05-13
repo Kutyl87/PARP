@@ -114,7 +114,8 @@ rest gs =  do
     gs {energy = newEnergy, message="You take a rest and feel better. Your energy is now " ++ show newEnergy}
 
 look::Types.GameState->Types.GameState
-look gs = gs {message = Types.description (getCurLocation gs) gs ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
+look gs | not (null(Data.Map.toList(items (getCurLocation gs)))) = gs {message = Types.description (getCurLocation gs) gs ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
+        | otherwise = gs {message = Types.description (getCurLocation gs) gs ++ "\nThere are no items here."}
 
 craft::GameState->String->GameState
 craft gs s = let recipe = Data.Map.lookup s Items.recpies in
