@@ -14,7 +14,7 @@ flute :: String
 flute = "Flute"
 
 stone_tablet :: String
-stone_tablet = "Stone tablet"
+stone_tablet = "stone_tablet"
 
 aligator :: String
 aligator = "Aligator"

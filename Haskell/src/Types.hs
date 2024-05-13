@@ -13,7 +13,7 @@ data Location = Location{
     paths::Map Direction String
 }
 
-data Event = RatKingDefeated deriving Eq
+data Event = RatKingDefeated | DoorOpened deriving Eq
 
 data GameState = GameState{
     inventory::Data.Map.Map String Int,

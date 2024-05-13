@@ -123,10 +123,13 @@ go gs ds = do
             else do
                 let nls = Locations.getLocationStringAtDir l (fromMaybe Types.Forward d)
                 let energyCost = if Data.Map.lookup Items.aligator (inventory gs) > Just 0 then 0 else 10
-                if (energy gs) <= energyCost then gs {message = "You are out of energy.\nYou died. Game over.", dead = True}
-                else
-                    let nl = fromMaybe Locations.entrance (Data.Map.lookup (fromMaybe "" nls) (locations gs)) in
-                    gs {message = Types.description nl gs ++ "\n Energy: " ++ show (energy gs - energyCost), currentLocation = Types.name nl, energy = energy gs - energyCost}
+                if isNothing nls then gs {message = "You cannot go there!"}
+                else do
+                    if (energy gs) <= energyCost then gs {message = "You are out of energy.\nYou died. Game over.", dead = True}
+                    else
+                        let nl = fromMaybe Locations.entrance (Data.Map.lookup (fromMaybe "" nls) (locations gs)) in
+
+>>>>>>> 2d83cf6 (add using items)
 rest::Types.GameState->Types.GameState
 rest gs =  do
     let newEnergy = if (energy gs + (Types.restingPace gs)) < maxEnergy gs then energy gs + (Types.restingPace gs) else maxEnergy gs
@@ -140,3 +143,13 @@ craft gs s = let recipe = Data.Map.lookup s Items.recpies in
     else if Items.checkRecipeItems (inventory gs) (fromJust recipe) then
         gs {inventory=Data.Map.insert s 1 (Items.subtractRecipeItems (inventory gs) (fromJust recipe)), message="Crafted "++s}
         else gs {message="You don't have the required items!"}
+
+use::Types.GameState->String->Types.GameState
+use gs s = do
+    if (Data.Map.member s (Types.inventory gs)) && (s == Items.flute) && (isAligatorInLocation (currentLocation gs) (locations gs)) && (not (Data.Map.member Items.aligator (Types.inventory gs))) then
+        (Game.take gs Items.aligator) {message = "You have used a magic flute. Aligator obeys you now. You can use him as a form of transport."}
+    else if (Data.Map.member s (Types.inventory gs)) && (s == Items.flute)  then
+        gs {message = "You have used a flute. Its sounds reverberate around you."}
+    else if (Data.Map.member s (Types.inventory gs)) && (s == Items.stone_tablet) && ((currentLocation gs) == Types.name Locations.in_front_of_third_tunnel) && (not (elem Types.DoorOpened (events gs)))  then
+        gs {message = "As you align the stone tablet with the mysterious markings on the door, its magic surges, casting a luminous aura that seamlessly unlocks the passage ahead.", events = Types.DoorOpened:(events gs)}
+    else describe gs s
