@@ -7,7 +7,7 @@ import qualified Locations
 import qualified Game
 
 import Data.List.Split (splitOn)
-import Game (GameState(message))
+import Types
 import System.IO (hFlush, stdout)
 
 instructionsText :: [String]
@@ -41,10 +41,10 @@ readCommand = do
 
 -- note that the game loop may take the game state as
 -- an argument, eg. gameLoop :: State -> IO ()
-gameLoop :: Game.GameState->IO ()
+gameLoop :: Types.GameState->IO ()
 gameLoop gs = do
-    printLines [Game.message gs]
-    if Game.dead gs == True then return ()
+    printLines [Types.message gs]
+    if Types.dead gs == True then return ()
     else do
         cmd <- readCommand
         let cmdArgs = splitOn " " cmd
@@ -56,6 +56,7 @@ gameLoop gs = do
             "take" -> gameLoop (Game.take gs (cmdArgs!!1))
             "look" -> gameLoop (Game.look gs)
             "inventory" -> gameLoop (Game.printInventory gs)
+            "rest" -> gameLoop (Game.rest gs)
             "quit" -> return ()
             _ -> do gameLoop gs {message = "Unknown command"}
 
