@@ -1,7 +1,9 @@
 module Types where
 
 import Data.Map (Map)
+import Data.IORef
 
+type RestingPace = Int
 data Direction = Forward | Back | Left | Right deriving (Eq, Ord)
 
 data Location = Location{
@@ -21,5 +23,6 @@ data GameState = GameState{
     events::[Event],
     energy::Int,
     maxEnergy::Int,
-    dead::Bool
+    dead::Bool,
+    restingPace :: RestingPace
 }
