@@ -122,13 +122,11 @@ go gs ds = do
             if isNothing d then gs {message = "Incorrect direction"}
             else do
                 let nls = Locations.getLocationStringAtDir l (fromMaybe Types.Forward d)
-                if isNothing nls then gs {message = "You cannot go there!"}
-                else do
-                    if (energy gs) <= 10 then gs {message = "You are out of energy.\nYou died. Game over.", dead = True}
-                    else
-                        let nl = fromMaybe Locations.entrance (Data.Map.lookup (fromMaybe "" nls) (locations gs)) in
-                        gs {message = Types.description nl gs ++ "\n Energy: " ++ show (energy gs - 10), currentLocation = Types.name nl, energy = energy gs - 10}
-
+                let energyCost = if Data.Map.lookup Items.aligator (inventory gs) > Just 0 then 0 else 10
+                if (energy gs) <= energyCost then gs {message = "You are out of energy.\nYou died. Game over.", dead = True}
+                else
+                    let nl = fromMaybe Locations.entrance (Data.Map.lookup (fromMaybe "" nls) (locations gs)) in
+                    gs {message = Types.description nl gs ++ "\n Energy: " ++ show (energy gs - energyCost), currentLocation = Types.name nl, energy = energy gs - energyCost}
 rest::Types.GameState->Types.GameState
 rest gs =  do
     let newEnergy = if (energy gs + (Types.restingPace gs)) < maxEnergy gs then energy gs + (Types.restingPace gs) else maxEnergy gs
