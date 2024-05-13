@@ -148,7 +148,7 @@ craft gs s = let recipe = Data.Map.lookup s Items.recpies in
 
 use::Types.GameState->String->Types.GameState
 use gs s = do
-    if (Data.Map.member s (Types.inventory gs)) && (s == Items.flute) && (isAligatorInLocation (currentLocation gs) (locations gs)) && (not (Data.Map.member Items.aligator (Types.inventory gs))) then
+    if (Data.Map.member s (Types.inventory gs)) && (s == Items.flute) && (Locations.isAligatorInLocation (currentLocation gs) (locations gs)) && (not (Data.Map.member Items.aligator (Types.inventory gs))) then
         (Game.take gs Items.aligator) {message = "You have used a magic flute. Aligator obeys you now. You can use him as a form of transport."}
     else if (Data.Map.member s (Types.inventory gs)) && (s == Items.flute)  then
         gs {message = "You have used a flute. Its sounds reverberate around you."}
