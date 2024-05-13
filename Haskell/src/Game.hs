@@ -2,7 +2,7 @@ module Game where
 
 import qualified Items
 import qualified Locations
-import qualified Data.Map (Map, lookup, fromList, toList, empty, insert, delete)
+import qualified Data.Map (Map, lookup, fromList, toList, empty, insert, delete, member)
 import Data.Maybe (isNothing, fromMaybe, fromJust, maybe)
 import Locations (strToDir)
 import System.Random (randomRIO)
@@ -67,13 +67,23 @@ take gs s = do
 
 fight :: GameState -> String -> GameState
 fight gs s = 
-    if s /= "aligator" then gs { message = "You can't fight with anything other than an aligator!" }
-    else 
-        let e = energy gs
-            eLoss = unsafePerformIO $ randomRIO (0, 50)
-            newE = e - eLoss
-        in if newE <= 0 then gs { energy = 0, message = "You are out of energy. You have died." }
-           else gs { energy = newE, message = "You have fought with an aligator. You have " ++ show newE ++ " energy left." }
+    if s /= Items.aligator then gs { message = "You can't fight with anything other than an aligator!" }
+    else do
+        let curLocation = currentLocation gs
+        if not (isAligatorInLocation curLocation (locations gs)) then
+            gs { message = "There is no aligator in this location!" }
+        else do
+            let e = energy gs
+            let eLoss = unsafePerformIO $ randomRIO (0, 50)
+            let newE = e - eLoss
+            if newE <= 0 then gs { energy = 0, message = "You are out of energy. You have died." }
+            else gs { energy = newE, message = "You have fought with an aligator. You have " ++ show newE ++ " energy left." }
+
+isAligatorInLocation :: String -> Data.Map.Map String Location -> Bool
+isAligatorInLocation locationName locationsMap = 
+    case Data.Map.lookup locationName locationsMap of
+        Just location -> Data.Map.member Items.aligator (items location)
+        Nothing -> False
 
 type RestingPace = Int
 
