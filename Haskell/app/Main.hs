@@ -8,6 +8,7 @@ import qualified Game
 
 import Data.List.Split (splitOn)
 import Game (GameState(message))
+import System.IO (hFlush, stdout)
 
 instructionsText :: [String]
 instructionsText = [
@@ -19,6 +20,7 @@ instructionsText = [
     "take [object]",
     "inspect [object]",
     "look",
+    "inventory     -- to see items in ypur inventory",
     "quit -- to end the game and quit.",
     ""
     ]
@@ -33,6 +35,7 @@ printInstructions = printLines instructionsText
 readCommand :: IO String
 readCommand = do
     putStr "> "
+    hFlush stdout
     getLine
 
 -- note that the game loop may take the game state as
@@ -51,6 +54,7 @@ gameLoop gs = do
         "take" -> gameLoop (Game.take gs (cmdArgs!!1))
         "look" -> gameLoop (Game.look gs)
         "describe" -> gameLoop (Game.describe gs (cmdArgs!!1))
+        "inventory" -> gameLoop (Game.printInventory gs)
         "quit" -> return ()
         _ -> do gameLoop gs {message = "Unknown command"}
 
@@ -58,5 +62,4 @@ main :: IO ()
 main = do
     printInstructions
     let gs = Game.initGameState
-    putStr "> "
     gameLoop gs
