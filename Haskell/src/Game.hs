@@ -5,11 +5,9 @@ import qualified Locations
 import qualified Data.Map (Map, lookup, fromList, toList, empty, insert, delete)
 import Data.Maybe (isNothing, fromMaybe, fromJust, maybe)
 import Locations (strToDir)
-import System.Random (randomRIO)
 import Control.Monad.State
 import Types
-
-data Event = RatKingDefeated deriving Eq
+import qualified Types as Types.Event
 
 dummyGameState::Types.GameState
 dummyGameState = Types.GameState
@@ -21,6 +19,7 @@ dummyGameState = Types.GameState
     100
     100
     False
+    (0,0)
 
 initGameState::Types.GameState
 initGameState = Types.GameState
@@ -47,6 +46,7 @@ initGameState = Types.GameState
     100
     100
     False
+    (0,0)
 
 describe::Types.GameState->String->Types.GameState
 describe gs s = gs {message = maybe "You are not holding this item!" (const (fromMaybe "" (Data.Map.lookup s Items.descriptions))) (Data.Map.lookup s (inventory gs))}
@@ -65,19 +65,18 @@ take gs s = do
         if isNothing ninum then gs {message = "Picked up "++s, locations=Data.Map.insert (currentLocation gs) newLocation  (locations gs), inventory=Data.Map.insert s 1 (inventory gs)}
         else gs {message = "Picked up "++s, locations=Data.Map.insert  (currentLocation gs) newLocation (locations gs), inventory=Data.Map.insert s (fromJust ninum + 1) (inventory gs)}
 
-fight :: GameState -> String -> IO GameState
-fight gs s = do
-    if s /= "aligator" then return gs { message = "You can't fight with anything other than an aligator!" }
+fight :: GameState -> String -> Int ->GameState
+fight gs s eLoss = do
+    if s /= "aligator" then gs { message = "You can't fight with anything other than an aligator!" }
     else do
         let e = energy gs
-        eLoss <- randomRIO (0, 50)
         let newE = e - eLoss
-        if newE <= 0 then do
-            return gs { energy = 0, message = "You are out of energy. You have died." }
+        if newE <= 0 then
+            gs { energy = 0, message = "You are out of energy. You have died." }
         else do
             -- Here you can call the function `improveResting` if it exists
             -- improveResting
-            return gs { energy = newE, message = "You have fought with an aligator. You have " ++ show newE ++ " energy left." }
+            gs { energy = newE, message = "You have fought with an aligator. You have " ++ show newE ++ " energy left." }
 
 type RestingPace = Int
 
@@ -114,7 +113,7 @@ rest gs =  do
     gs {energy = newEnergy, message="You take a rest and feel better. Your energy is now " ++ show newEnergy}
 
 look::Types.GameState->Types.GameState
-look gs | not (null(Data.Map.toList(items (getCurLocation gs)))) = gs {message = Types.description (getCurLocation gs) gs ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
+look gs | not (null (Data.Map.toList (items (getCurLocation gs)))) = gs {message = Types.description (getCurLocation gs) gs ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
         | otherwise = gs {message = Types.description (getCurLocation gs) gs ++ "\nThere are no items here."}
 
 craft::GameState->String->GameState
@@ -123,3 +122,21 @@ craft gs s = let recipe = Data.Map.lookup s Items.recpies in
     else if Items.checkRecipeItems (inventory gs) (fromJust recipe) then
         gs {inventory=Data.Map.insert s 1 (Items.subtractRecipeItems (inventory gs) (fromJust recipe)), message="Crafted "++s}
         else gs {message="You don't have the required items!"}
+
+ratKingReject::GameState->GameState
+ratKingReject gs = let goState = go gs "back" in gs {message="You leave the Rat King's chambers. "++message goState}
+
+ratKingRiddle::GameState->Int->Int->GameState
+ratKingRiddle gs i1 i2 = gs {message="Here is the riddle : what is " ++ show i1 ++ "+" ++ show i2 ++ " (Use answer [number] to answer)", riddle=(fst (Types.riddle gs)+1, i1+i2)}
+
+ratKingAnswer::GameState->String->GameState
+ratKingAnswer gs s = let ans = read s in
+    if fst (Types.riddle gs) < 3 && ans == snd (Types.riddle gs) then gs {message="You are correct! (Use ask for the next riddle)."}
+    else if ans == snd (Types.riddle gs) then
+        gs {message="You are correct! This was the last riddle. You have answered them all! I shall leave now. Before I go, take this for you gallant efforts. The Great Rat King hands you a broken stone tablet. Do you want to take it? (Type take Stone tablet half to take it.)",
+        locations=addItemToLocation gs "Stone tablet half", events=RatKingDefeated:events gs, riddle=(0,0)}
+        else
+        gs {message="Wrong! Your life ends here!", dead=True}
+
+addItemToLocation::GameState->String->Data.Map.Map String Location
+addItemToLocation gs s = Data.Map.insert (Types.currentLocation gs) (fromJust (Data.Map.lookup (Types.currentLocation gs) (Types.locations gs))) {items=Data.Map.insert s 1 (Types.items (getCurLocation gs))} (Types.locations gs)

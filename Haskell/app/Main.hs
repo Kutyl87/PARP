@@ -5,10 +5,12 @@ module Main where
 import qualified Items
 import qualified Locations
 import qualified Game
+import qualified Types (Event)
 
 import Data.List.Split (splitOn)
 import Types
 import System.IO (hFlush, stdout)
+import System.Random (randomRIO)
 
 instructionsText :: [String]
 instructionsText = [
@@ -64,7 +66,17 @@ gameLoop gs = do
             "look" -> gameLoop (Game.look gs)
             "rest" -> gameLoop (Game.rest gs)
             "inventory" -> gameLoop (Game.printInventory gs)
-            -- "fight" -> gameLoop (Game.fight gs (cmdArgs!!1))
+            "ask" -> do 
+                int1 <- randomRIO(0, 10)
+                int2 <- randomRIO(0,10)
+                gameLoop(Game.ratKingRiddle gs int1 int2)
+            "yes" -> if Types.currentLocation gs == "Side tunnel" && not (elem Types.RatKingDefeated (Types.events gs)) then 
+                    do 
+                    int1 <- randomRIO(0, 10)
+                    int2 <- randomRIO(0,10)
+                    gameLoop (Game.ratKingRiddle gs int1 int2) else gameLoop gs {message="Unknown command"}
+            "no" -> if Types.currentLocation gs == "Side tunnel" && not (elem Types.RatKingDefeated (Types.events gs)) then gameLoop (Game.ratKingReject gs) else gameLoop gs {message="Unknown command"}
+            "answer" -> if Types.currentLocation gs == "Side tunnel" && not (elem Types.RatKingDefeated (Types.events gs)) then gameLoop (Game.ratKingAnswer gs (cmdArgs!!1))  else gameLoop gs {message="Unknown command"}
             "craft" -> gameLoop (Game.craft gs (joinArgs (tail cmdArgs)))
             "quit" -> return ()
             _ -> do gameLoop gs {message = "Unknown command"}

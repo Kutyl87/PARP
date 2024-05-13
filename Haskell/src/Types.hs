@@ -11,7 +11,7 @@ data Location = Location{
     paths::Map Direction String
 }
 
-data Event = RatKingDefeated deriving Eq
+data Event = RatKingDefeated | RatKingAccepted deriving Eq
 
 data GameState = GameState{
     inventory::Data.Map.Map String Int,
@@ -21,5 +21,6 @@ data GameState = GameState{
     events::[Event],
     energy::Int,
     maxEnergy::Int,
-    dead::Bool
+    dead::Bool,
+    riddle::(Int, Int)
 }
