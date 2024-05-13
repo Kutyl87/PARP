@@ -8,7 +8,7 @@ import Locations (strToDir)
 import System.Random (randomRIO)
 import Control.Monad.State
 import Types
-
+import System.IO.Unsafe (unsafePerformIO)
 data Event = RatKingDefeated deriving Eq
 
 dummyGameState::Types.GameState
@@ -65,19 +65,15 @@ take gs s = do
         if isNothing ninum then gs {message = "Picked up "++s, locations=Data.Map.insert (currentLocation gs) newLocation  (locations gs), inventory=Data.Map.insert s 1 (inventory gs)}
         else gs {message = "Picked up "++s, locations=Data.Map.insert  (currentLocation gs) newLocation (locations gs), inventory=Data.Map.insert s (fromJust ninum + 1) (inventory gs)}
 
-fight :: GameState -> String -> IO GameState
-fight gs s = do
-    if s /= "aligator" then return gs { message = "You can't fight with anything other than an aligator!" }
-    else do
+fight :: GameState -> String -> GameState
+fight gs s = 
+    if s /= "aligator" then gs { message = "You can't fight with anything other than an aligator!" }
+    else 
         let e = energy gs
-        eLoss <- randomRIO (0, 50)
-        let newE = e - eLoss
-        if newE <= 0 then do
-            return gs { energy = 0, message = "You are out of energy. You have died." }
-        else do
-            -- Here you can call the function `improveResting` if it exists
-            -- improveResting
-            return gs { energy = newE, message = "You have fought with an aligator. You have " ++ show newE ++ " energy left." }
+            eLoss = unsafePerformIO $ randomRIO (0, 50)
+            newE = e - eLoss
+        in if newE <= 0 then gs { energy = 0, message = "You are out of energy. You have died." }
+           else gs { energy = newE, message = "You have fought with an aligator. You have " ++ show newE ++ " energy left." }
 
 type RestingPace = Int
 

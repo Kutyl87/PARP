@@ -64,6 +64,7 @@ gameLoop gs = do
             "look" -> gameLoop (Game.look gs)
             "inventory" -> gameLoop (Game.printInventory gs)
             "craft" -> gameLoop (Game.craft gs (joinArgs (tail cmdArgs)))
+            "fight" -> gameLoop (Game.fight gs (cmdArgs!!1))
             "quit" -> return ()
             _ -> do gameLoop gs {message = "Unknown command"}
 
