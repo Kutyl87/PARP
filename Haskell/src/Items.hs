@@ -18,7 +18,7 @@ recpies = Map.fromList [
 
 descriptions :: Map String String
 descriptions = Map.fromList [
-    (note, "A note on the ground")]
+    (note, "You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely.")]
 
 printItemList::[(String, Int)]->String
 printItemList [] = ""

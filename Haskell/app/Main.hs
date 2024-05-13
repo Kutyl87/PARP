@@ -20,8 +20,9 @@ instructionsText = [
     "take [object]",
     "inspect [object]",
     "look",
-    "inventory     -- to see items in ypur inventory",
-    "quit -- to end the game and quit.",
+    "inventory     -- to see items in your inventory",
+    "rest          -- to regenerate energy",
+    "quit          -- to end the game and quit.",
     ""
     ]
 
@@ -43,20 +44,20 @@ readCommand = do
 gameLoop :: Game.GameState->IO ()
 gameLoop gs = do
     printLines [Game.message gs]
-    cmd <- readCommand
-    let cmdArgs = splitOn " " cmd
-    case head cmdArgs of 
-        "instructions" -> do printInstructions
-                             gameLoop gs
-        "inspect" -> let ngs = Game.describe gs (cmdArgs!!1) in 
-                     gameLoop ngs
-        "go" -> gameLoop (Game.go gs (cmdArgs!!1))
-        "take" -> gameLoop (Game.take gs (cmdArgs!!1))
-        "look" -> gameLoop (Game.look gs)
-        "describe" -> gameLoop (Game.describe gs (cmdArgs!!1))
-        "inventory" -> gameLoop (Game.printInventory gs)
-        "quit" -> return ()
-        _ -> do gameLoop gs {message = "Unknown command"}
+    if Game.dead gs == True then return ()
+    else do
+        cmd <- readCommand
+        let cmdArgs = splitOn " " cmd
+        case head cmdArgs of 
+            "instructions" -> do printInstructions
+                                 gameLoop gs
+            "inspect" -> gameLoop (Game.describe gs (cmdArgs!!1))
+            "go" -> gameLoop (Game.go gs (cmdArgs!!1))
+            "take" -> gameLoop (Game.take gs (cmdArgs!!1))
+            "look" -> gameLoop (Game.look gs)
+            "inventory" -> gameLoop (Game.printInventory gs)
+            "quit" -> return ()
+            _ -> do gameLoop gs {message = "Unknown command"}
 
 main :: IO ()
 main = do

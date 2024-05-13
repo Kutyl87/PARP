@@ -13,7 +13,9 @@ data GameState = GameState{
     currentLocation::String,
     message::String,
     locations::Data.Map.Map String Locations.Location,
-    events::[Event]
+    events::[Event],
+    energy::Int,
+    dead::Bool
 }
 
 initGameState::GameState
@@ -38,6 +40,8 @@ initGameState = GameState
                         ("Third tunnel", Locations.third_tunnel),
                         ("Synagogue", Locations.synagogue)])
     []
+    100
+    False
 
 describe::GameState->String->GameState
 describe gs s = gs {message = maybe "You are not holding this item!" (const (fromMaybe "" (Data.Map.lookup s Items.descriptions))) (Data.Map.lookup s (inventory gs))}
@@ -70,8 +74,11 @@ go gs ds = do
             else do
                 let nls = Locations.getLocationStringAtDir l (fromMaybe Locations.Forward d)
                 if isNothing nls then gs {message = "You cannot go there!"}
-                else let nl = fromMaybe Locations.entrance (Data.Map.lookup (fromMaybe "" nls) (locations gs)) in
-                    gs {message = Locations.description nl, currentLocation = Locations.name nl}
+                else do
+                    if (energy gs) <= 10 then gs {message = "You are out of energy.\nYou died. Game over.", dead = True}
+                    else
+                        let nl = fromMaybe Locations.entrance (Data.Map.lookup (fromMaybe "" nls) (locations gs)) in
+                        gs {message = Locations.description nl ++ "\n Energy: " ++ show (energy gs - 10), currentLocation = Locations.name nl, energy = energy gs - 10}
 
 look::GameState->GameState
 look gs = gs {message = Locations.description (getCurLocation gs) ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
