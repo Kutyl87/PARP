@@ -9,10 +9,10 @@ import System.Random (randomRIO)
 import Control.Monad.State
 import Types
 import System.IO.Unsafe (unsafePerformIO)
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 data Event = RatKingDefeated deriving Eq
 
 
-type RestingPace = Int
 dummyGameState::Types.GameState
 dummyGameState = Types.GameState
     Data.Map.empty
@@ -23,6 +23,7 @@ dummyGameState = Types.GameState
     100
     100
     False
+    10
 
 initGameState::Types.GameState
 initGameState = Types.GameState
@@ -49,6 +50,7 @@ initGameState = Types.GameState
     100
     100
     False
+    10
 
 describe::Types.GameState->String->Types.GameState
 describe gs s = gs {message = maybe "You are not holding this item!" (const (fromMaybe "" (Data.Map.lookup s Items.descriptions))) (Data.Map.lookup s (inventory gs))}
@@ -80,7 +82,9 @@ fight gs s =
             let newE = e - eLoss
             let newLocations = Locations.removeAligatorFromLocation curLocation (locations gs)
             if newE <= 0 then gs { energy = 0, message = "You are out of energy. You have died." }
-            else gs { energy = newE, locations = newLocations, message = "You have fought with an aligator. You have " ++ show newE ++ " energy left." }
+            else do
+                let newGs = improveResting gs 
+                newGs { energy = newE, locations = newLocations, message = (message newGs) ++ "\nYou have fought with an aligator. You have " ++ show newE ++ " energy left." }
 
 buy :: GameState -> String -> GameState
 buy gs s = 
@@ -99,12 +103,11 @@ buy gs s =
                 else let newE = energy gs - 50
                          newInventory = Data.Map.insert Items.flute 1 (inventory gs)
                      in gs { energy = newE, inventory = newInventory, message = "You have bought a magic flute. You have " ++ show newE ++ " energy left." }
-improveResting :: StateT RestingPace IO ()
-improveResting = do
-    rp <- get
-    let newRp = rp + 10
-    put newRp
-    liftIO $ putStrLn $ "You have improved your resting pace. It is now " ++ show newRp ++ "."
+
+improveResting :: Types.GameState->Types.GameState
+improveResting gs = do
+    let newRp = (Types.restingPace gs) + 10
+    gs {message = "You have improved your resting pace. It is now " ++ show newRp ++ "", restingPace = newRp}
 
 printInventory::Types.GameState->Types.GameState
 printInventory gs = let newInventory = Items.cleanInventory (inventory gs) in gs {message = "Inventory:\n" ++ Items.printItemList (Data.Map.toList newInventory), inventory=newInventory}
@@ -128,9 +131,8 @@ go gs ds = do
 
 rest::Types.GameState->Types.GameState
 rest gs =  do
-    let newEnergy = do if (energy gs + 10) < maxEnergy gs then energy gs + 10 else maxEnergy gs
+    let newEnergy = if (energy gs + (Types.restingPace gs)) < maxEnergy gs then energy gs + (Types.restingPace gs) else maxEnergy gs
     gs {energy = newEnergy, message="You take a rest and feel better. Your energy is now " ++ show newEnergy}
-
 look::Types.GameState->Types.GameState
 look gs = gs {message = Types.description (getCurLocation gs) gs ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
 
