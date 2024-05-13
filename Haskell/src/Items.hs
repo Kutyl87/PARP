@@ -19,3 +19,7 @@ recpies = Map.fromList [
 descriptions :: Map String String
 descriptions = Map.fromList [
     (note, "A note on the ground")]
+
+printItemList::[(String, Int)]->String
+printItemList [] = ""
+printItemList (x:xs) = fst x ++ " (count: " ++ show (snd x) ++ ")\n" ++ printItemList xs

@@ -2,7 +2,7 @@ module Game where
 
 import qualified Items
 import qualified Locations
-import qualified Data.Map (Map, lookup, fromList, empty, insert)
+import qualified Data.Map (Map, lookup, fromList, toList, empty, insert, delete)
 import Data.Maybe (isNothing, fromMaybe, fromJust)
 import Locations (strToDir)
 
@@ -13,7 +13,6 @@ data GameState = GameState{
     currentLocation::String,
     message::String,
     locations::Data.Map.Map String Locations.Location,
-    itemList::Data.Map.Map String Int,
     events::[Event]
 }
 
@@ -24,22 +23,27 @@ initGameState = GameState
     "You are at the entrance"
     (Data.Map.fromList [("entrance", Locations.entrance),
     ("Tunnel 1", Locations.tunnel_1)])
-    (Data.Map.fromList [(Items.note, 1)])
     []
 
 describe::GameState->String->GameState
-describe gs s = gs {message = maybe "You are not holding this item!" (const (fromMaybe "" (Data.Map.lookup s Items.descriptions))) (Data.Map.lookup s (itemList gs))}
+describe gs s = gs {message = maybe "You are not holding this item!" (const (fromMaybe "" (Data.Map.lookup s Items.descriptions))) (Data.Map.lookup s (inventory gs))}
 
 take::GameState->String->GameState
 take gs s = do
     let inum = Data.Map.lookup s (Locations.items (getCurLocation gs))
     if fromMaybe 0 inum == 0 then gs {message = "This item is not here!"}
     else do
-        let newLocationItems = Data.Map.insert s (fromJust inum - 1)  (Locations.items (getCurLocation gs))
+        let newLocationItems = do {
+            if fromJust inum > 1 then Data.Map.insert s (fromJust inum - 1)  (Locations.items (getCurLocation gs))
+            else Data.Map.delete s (Locations.items (getCurLocation gs))
+        }
         let newLocation = (getCurLocation gs) {Locations.items=newLocationItems}
         let ninum = Data.Map.lookup s (inventory gs)
-        if isNothing ninum then gs {message = "Picked up "++s, locations=Data.Map.insert (currentLocation gs) newLocation  (locations gs), inventory=Data.Map.insert s 0 (inventory gs)}
-        else gs {message = "Picked up "++s, locations=Data.Map.insert  (currentLocation gs) newLocation (locations gs), inventory=Data.Map.insert s (fromJust ninum) (inventory gs)}
+        if isNothing ninum then gs {message = "Picked up "++s, locations=Data.Map.insert (currentLocation gs) newLocation  (locations gs), inventory=Data.Map.insert s 1 (inventory gs)}
+        else gs {message = "Picked up "++s, locations=Data.Map.insert  (currentLocation gs) newLocation (locations gs), inventory=Data.Map.insert s (fromJust ninum + 1) (inventory gs)}
+
+printInventory::GameState->GameState
+printInventory gs = gs {message = "Inventory:\n" ++ Items.printItemList (Data.Map.toList (inventory gs))}
 
 getCurLocation::GameState->Locations.Location
 getCurLocation gs = fromJust (Data.Map.lookup (currentLocation gs) (locations gs))
@@ -57,4 +61,3 @@ go gs ds = do
 
 look::GameState->GameState
 look gs = gs {message = Locations.description (getCurLocation gs) ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
-
