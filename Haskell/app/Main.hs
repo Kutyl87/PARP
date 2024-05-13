@@ -7,7 +7,7 @@ import qualified Locations
 import qualified Game
 
 import Data.List.Split (splitOn)
-import Game (GameState(message))
+import Types
 import System.IO (hFlush, stdout)
 
 instructionsText :: [String]
@@ -47,10 +47,10 @@ joinArgs (x:xs) = if null xs then
 
 -- note that the game loop may take the game state as
 -- an argument, eg. gameLoop :: State -> IO ()
-gameLoop :: Game.GameState->IO ()
+gameLoop :: Types.GameState->IO ()
 gameLoop gs = do
-    printLines [Game.message gs]
-    if Game.dead gs then return ()
+    printLines [Types.message gs]
+    if Types.dead gs == True then return ()
     else do
         cmd <- readCommand
         let cmdArgs = splitOn " " cmd
