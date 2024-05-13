@@ -11,6 +11,8 @@ import Types
 import System.IO.Unsafe (unsafePerformIO)
 data Event = RatKingDefeated deriving Eq
 
+
+type RestingPace = Int
 dummyGameState::Types.GameState
 dummyGameState = Types.GameState
     Data.Map.empty
@@ -80,10 +82,23 @@ fight gs s =
             if newE <= 0 then gs { energy = 0, message = "You are out of energy. You have died." }
             else gs { energy = newE, locations = newLocations, message = "You have fought with an aligator. You have " ++ show newE ++ " energy left." }
 
-
-
-type RestingPace = Int
-
+buy :: GameState -> String -> GameState
+buy gs s = 
+    let locationName = case Data.Map.lookup (currentLocation gs) (locations gs) of
+            Just loc -> Types.name loc
+            Nothing -> ""
+        hasFlute = Data.Map.member Items.flute (inventory gs)
+    in if locationName /= (Types.name Locations.dealer_room)
+        then gs { message = "You are not in the dealer's room." }
+        else if s /= Items.flute 
+            then gs { message = "You can't buy anything other than a flute!" }
+            else if energy gs < 50 
+                then gs { message = "You don't have enough energy." }
+            else if hasFlute
+                then gs { message = "You already have a flute." }
+                else let newE = energy gs - 50
+                         newInventory = Data.Map.insert Items.flute 1 (inventory gs)
+                     in gs { energy = newE, inventory = newInventory, message = "You have bought a magic flute. You have " ++ show newE ++ " energy left." }
 improveResting :: StateT RestingPace IO ()
 improveResting = do
     rp <- get
