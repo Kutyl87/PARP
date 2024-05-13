@@ -39,12 +39,18 @@ readCommand = do
     hFlush stdout
     getLine
 
+joinArgs::[String]->String
+joinArgs [] = ""
+joinArgs (x:xs) = if null xs then
+    x else (x ++ " ") ++ joinArgs xs
+    
+
 -- note that the game loop may take the game state as
 -- an argument, eg. gameLoop :: State -> IO ()
 gameLoop :: Game.GameState->IO ()
 gameLoop gs = do
     printLines [Game.message gs]
-    if Game.dead gs == True then return ()
+    if Game.dead gs then return ()
     else do
         cmd <- readCommand
         let cmdArgs = splitOn " " cmd
@@ -56,6 +62,7 @@ gameLoop gs = do
             "take" -> gameLoop (Game.take gs (cmdArgs!!1))
             "look" -> gameLoop (Game.look gs)
             "inventory" -> gameLoop (Game.printInventory gs)
+            "craft" -> gameLoop (Game.craft gs (joinArgs (tail cmdArgs)))
             "quit" -> return ()
             _ -> do gameLoop gs {message = "Unknown command"}
 

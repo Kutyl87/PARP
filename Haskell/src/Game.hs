@@ -3,7 +3,7 @@ module Game where
 import qualified Items
 import qualified Locations
 import qualified Data.Map (Map, lookup, fromList, toList, empty, insert, delete)
-import Data.Maybe (isNothing, fromMaybe, fromJust)
+import Data.Maybe (isNothing, fromMaybe, fromJust, maybe)
 import Locations (strToDir)
 
 data Event = RatKingDefeated deriving Eq
@@ -82,3 +82,10 @@ go gs ds = do
 
 look::GameState->GameState
 look gs = gs {message = Locations.description (getCurLocation gs) ++ "\nItems in current location:\n" ++ Locations.listItems (getCurLocation gs)}
+
+craft::GameState->String->GameState
+craft gs s = let recipe = Data.Map.lookup s Items.recpies in
+    if isNothing recipe then gs {message="You cannot craft this!"}
+    else if Items.checkRecipeItems (inventory gs) (fromJust recipe) then
+        gs {inventory=Data.Map.insert s 1 (Items.subtractRecipeItems (inventory gs) (fromJust recipe))}
+        else gs {message="You don't have the required items!"}
