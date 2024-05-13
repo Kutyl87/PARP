@@ -68,7 +68,7 @@ library
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base >=4.17.2.1, containers, text
+    build-depends:    base >=4.17.2.1, containers, text, random
 
     -- Directories containing source files.
     hs-source-dirs:   src
@@ -93,7 +93,8 @@ executable Adventure
     build-depends:
         base >=4.17.2.1,
         Adventure,
-        split
+        split,
+        random
     -- Directories containing source files.
     hs-source-dirs:   app
 

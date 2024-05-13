@@ -5,6 +5,7 @@ import qualified Locations
 import qualified Data.Map (Map, lookup, fromList, toList, empty, insert, delete)
 import Data.Maybe (isNothing, fromMaybe, fromJust)
 import Locations (strToDir)
+import System.Random (randomRIO)
 
 data Event = RatKingDefeated deriving Eq
 
@@ -59,6 +60,20 @@ take gs s = do
         let ninum = Data.Map.lookup s (inventory gs)
         if isNothing ninum then gs {message = "Picked up "++s, locations=Data.Map.insert (currentLocation gs) newLocation  (locations gs), inventory=Data.Map.insert s 1 (inventory gs)}
         else gs {message = "Picked up "++s, locations=Data.Map.insert  (currentLocation gs) newLocation (locations gs), inventory=Data.Map.insert s (fromJust ninum + 1) (inventory gs)}
+
+fight :: GameState -> String -> IO GameState
+fight gs s = do
+    if s /= "aligator" then return gs { message = "You can't fight with anything other than an aligator!" }
+    else do
+        let e = energy gs
+        eLoss <- randomRIO (0, 50)
+        let newE = e - eLoss
+        if newE <= 0 then do
+            return gs { energy = 0, message = "You are out of energy. You have died." }
+        else do
+            -- Here you can call the function `improveResting` if it exists
+            -- improveResting
+            return gs { energy = newE, message = "You have fought with an aligator. You have " ++ show newE ++ " energy left." }
 
 printInventory::GameState->GameState
 printInventory gs = gs {message = "Inventory:\n" ++ Items.printItemList (Data.Map.toList (inventory gs))}
