@@ -116,6 +116,9 @@ printInventory gs = let newInventory = Items.cleanInventory (inventory gs) in gs
 getCurLocation::Types.GameState->Types.Location
 getCurLocation gs = fromJust (Data.Map.lookup (currentLocation gs) (locations gs))
 
+getLocation::Data.Map.Map String Location->String->Types.Location
+getLocation m s = fromJust (Data.Map.lookup s m)
+
 go::Types.GameState->String->Types.GameState
 go gs ds = do
             let d = Locations.strToDir ds
@@ -168,10 +171,10 @@ ratKingAnswer::GameState->String->GameState
 ratKingAnswer gs s = let ans = read s in
     if fst (Types.riddle gs) < 3 && ans == snd (Types.riddle gs) then gs {message="You are correct! (Use ask for the next riddle)."}
     else if ans == snd (Types.riddle gs) then
-        gs {message="You are correct! This was the last riddle. You have answered them all! I shall leave now. Before I go, take this for you gallant efforts. The Great Rat King hands you a broken stone tablet. Do you want to take it? (Type take Stone tablet half to take it.)",
-        locations=addItemToLocation gs "Stone tablet half", events=Types.RatKingDefeated:events gs, riddle=(0,0)}
+        gs {message="You are correct! This was the last riddle. You have answered them all! I shall leave now. Before I go, take this for you gallant efforts. The Great Rat King hands you a broken stone tablet. Do you want to take it? (Type take stone_tablet_half to take it.)",
+        locations=(addItemToLocation (addItemToLocation (Types.locations gs) Items.stone_tablet_half (Types.currentLocation gs)) Items.stone_tablet_half (Types.name Locations.tunnel_diggers)), events=Types.RatKingDefeated:events gs, riddle=(0,0)}
         else
         gs {message="Wrong! Your life ends here!", dead=True}
 
-addItemToLocation::GameState->String->Data.Map.Map String Location
-addItemToLocation gs s = Data.Map.insert (Types.currentLocation gs) (fromJust (Data.Map.lookup (Types.currentLocation gs) (Types.locations gs))) {items=Data.Map.insert s 1 (Types.items (getCurLocation gs))} (Types.locations gs)
+addItemToLocation::Data.Map.Map String Location->String->String->Data.Map.Map String Location
+addItemToLocation m item location = Data.Map.insert location (getLocation m location) {items=Data.Map.insert item 1 (Types.items (getLocation m location))} m

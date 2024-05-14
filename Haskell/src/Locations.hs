@@ -1,6 +1,7 @@
 module Locations where 
 
 import Data.Map (Map, fromList, toList, lookup, empty, member, delete, insert)
+import Data.Maybe (isNothing, fromMaybe, fromJust, maybe)
 import Items
 import Types
 
@@ -108,9 +109,15 @@ second_tunnel = Types.Location
 tunnel_diggers :: Types.Location
 tunnel_diggers = Types.Location
     "Tunnel diggers"
-    (const "You see a few people with mining tools. They tell you that they''re trying to dig a tunnel to the surface but a herd of rats stands in their way. They point at a crudely built tunnel entrance to the left. Prehaps they will help you if you slay the rats?")
+    tunnelDiggersDescription
     Data.Map.empty
     (Data.Map.fromList [(Types.Back, "Second tunnel"), (Types.Forward, "Second tunnel 1"), (Types.Left, "Side tunnel")])
+
+tunnelDiggersDescription :: Types.GameState -> String
+tunnelDiggersDescription gs = do
+    if (fromMaybe 0 (Data.Map.lookup (Items.stone_tablet_half) (Types.inventory gs)) == 1 ) && (elem Types.RatKingDefeated (Types.events gs)) then "The miners happily greet you. They offer you a broken half of a stone tablet as thanks. You can feel magical energy from it.\nWould you like to take the tablet? (Use take stone_tablet_half to take it)"
+    else if (elem Types.RatKingDefeated (Types.events gs)) then "You stand at the entrance to the side tunnel. The miners have moved back into the side tunnel to keep digging."
+    else "You see a few people with mining tools. They tell you that they're trying to dig a tunnel to the surface but a herd of rats stands in their way. They point at a crudely built tunnel entrance to the left. Prehaps they will help you if you slay the rats?"
 
 side_tunnel :: Types.Location
 side_tunnel = Types.Location

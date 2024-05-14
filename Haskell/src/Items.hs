@@ -8,7 +8,7 @@ note :: String
 note = "note"
 
 stone_tablet_half :: String
-stone_tablet_half = "Stone tablet half"
+stone_tablet_half = "stone_tablet_half"
 
 flute :: String
 flute = "Flute"
