@@ -8,10 +8,16 @@ note :: String
 note = "note"
 
 stone_tablet_half :: String
-stone_tablet_half = "Stone tablet half"
+stone_tablet_half = "stone_tablet_half"
+
+flute :: String
+flute = "Flute"
 
 stone_tablet :: String
-stone_tablet = "Stone tablet"
+stone_tablet = "stone_tablet"
+
+aligator :: String
+aligator = "Aligator"
 
 recpies :: Map String [(String, Int)]
 recpies = Map.fromList [

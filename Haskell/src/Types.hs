@@ -1,7 +1,9 @@
 module Types where
 
 import Data.Map (Map)
+import Data.IORef
 
+type RestingPace = Int
 data Direction = Forward | Back | Left | Right deriving (Eq, Ord)
 
 data Location = Location{
@@ -11,7 +13,7 @@ data Location = Location{
     paths::Map Direction String
 }
 
-data Event = RatKingDefeated deriving Eq
+data Event = RatKingDefeated | RatKingAccepted | DoorOpened deriving Eq
 
 data GameState = GameState{
     inventory::Data.Map.Map String Int,
@@ -21,5 +23,7 @@ data GameState = GameState{
     events::[Event],
     energy::Int,
     maxEnergy::Int,
-    dead::Bool
+    dead::Bool,
+    restingPace :: RestingPace,
+    riddle::(Int, Int)
 }
