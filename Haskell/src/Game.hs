@@ -10,6 +10,7 @@ import Types
 import System.Random (randomRIO)
 import System.IO.Unsafe (unsafePerformIO)
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import qualified Types as Locations
 
 
 dummyGameState::Types.GameState
@@ -124,6 +125,8 @@ go gs ds = do
             let d = Locations.strToDir ds
             let l = getCurLocation gs
             if isNothing d then gs {message = "Incorrect direction"}
+            else if Locations.name l == "End of first tunnel" && fromJust d == Types.Forward then gs {message="You have entered a waterfall. You can see a light at the end of the tunnel. You are carried away by the current of water.", 
+                                dead=True}
             else do
                 let nls = Locations.getLocationStringAtDir l (fromMaybe Types.Forward d)
                 let energyCost = if Data.Map.lookup Items.aligator (inventory gs) > Just 0 then 0 else 10
