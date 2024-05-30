@@ -12,7 +12,7 @@ Collaborators:
 * ..."
 
 Object subclass: Game [
-    | isGameOver |
+    | isGameOver inventory currentLocation locations events energy maxEnergy dead restingPace riddle |
 
     introductionText := #(
         'Available commands are:'
@@ -56,16 +56,17 @@ Object subclass: Game [
     ]
 
     init [
-        isGameOver := false
-        inventory := OrderedCollection new
-        currentLocation := Entrance
-        locations::Data.Map.Map String Location
-        events := OrderedCollection new
-        energy := 100
-        maxEnergy := 100
-        dead := false
-        restingPace := 10
-        riddle::(Int, Int)
+        isGameOver := false.
+        inventory := OrderedCollection new.
+        currentLocation := Entrance.
+        locations := Dictionary new.
+        events := OrderedCollection new.
+        energy := 100.
+        maxEnergy := 100.
+        dead := false.
+        restingPace := 10.
+        riddle := Array new: 2. 
+        riddle at: 1 put: 0; at: 2 put: 0.
     ]
 
     "Print strings from array in separate lines."
