@@ -83,13 +83,21 @@ Object subclass: Game [
     ]
 
     readCommand [
+        | cmd_in |
         Transcript show: '> '.
-        ^ FileStream stdin nextLine
+        cmd_in := FileStream stdin nextLine.
+        ^ cmd_in substrings
+    ]
+
+    "Movement"
+
+    go: dirStr [
+        
     ]
 
     "Run the game."
     run [
-        | cmd isUnknown |
+        | cmdArr cmdName isUnknown |
 
         self printIntroduction.
         self printInstructions.
@@ -98,14 +106,15 @@ Object subclass: Game [
         [isGameOver] whileFalse: [
 
             isUnknown := true.
-            cmd := self readCommand.
+            cmdArr := self readCommand.
+            cmdName := cmdArr first.
 
-            cmd = 'instructions' ifTrue: [
+            cmdName = 'instructions' ifTrue: [
                 self printInstructions.
                 isUnknown := false
             ].
 
-            cmd = 'quit' ifTrue: [
+            cmdName = 'quit' ifTrue: [
                 isGameOver := true.
                 isUnknown := false
             ].
