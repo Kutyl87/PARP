@@ -30,14 +30,14 @@ Object subclass: Location [
 
     removeItem: aItemStr amount: anInt [
         | itemAmount |
-        itemAmount := items at: aItemStr.
-        (itemAmount isNil or: [itemAmount < anInt]) ifTrue: [^ false].
+        itemAmount := items at: aItemStr ifAbsent: [^ false].
+        (itemAmount < anInt) ifTrue: [^ false].
         items at: aItemStr put: (itemAmount - anInt).
         (items at: aItemStr) = 0 ifTrue: [items removeKey: aItemStr].
         ^ true
     ]
 ]Object subclass: Game [
-    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel hall firstTunnel dealerRoom alligatorRoom endOfFirstTunnel waterfall secondTunnel tunnelDiggers sideTunnel secondTunnel1 thirdTunnel synagogue |
+    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel hall firstTunnel dealerRoom alligatorRoom endOfFirstTunnel waterfall secondTunnel tunnelDiggers sideTunnel secondTunnel1 thirdTunnel synagogue items |
 
     Game class >> new [
         ^ super new init
@@ -109,9 +109,9 @@ Object subclass: Location [
         thirdTunnel addPath: 'forward' destination: synagogue.
         
         synagogue addPath: 'back' destination: thirdTunnel.
-
+        entrance addItem: 'note' amount: 1.
         isGameOver := false.
-        inventory := OrderedCollection new.
+        inventory := Dictionary new.
         currentLocation := entrance.
         energy := 100.
         maxEnergy := 100.
@@ -119,6 +119,8 @@ Object subclass: Location [
         restingPace := 10.
         riddle := Array new: 2.
         riddle at: 1 put: 0; at: 2 put: 0.
+        items := Dictionary new.
+        items at: 'note' put: 'You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely.'.
         ^ self
     ]
 
@@ -163,20 +165,64 @@ Object subclass: Location [
 
     go: dirStr [
         | destination |
+
         destination := currentLocation getDestination: dirStr.
         destination ifNotNil: [
-            currentLocation := destination.
-            self printLines: #('Went to the new location.' '').
-            self printLines: {currentLocation getDescription. ''}.
+            | energyCost |
+            energyCost := 10.  "Adjust this value as needed"
+            energy >= energyCost ifTrue: [
+                energy := energy - energyCost.
+                self printLines: {'Current energy: ', energy asString. ''}.
+                currentLocation := destination.
+                self printLines: #('Went to the new location.' '').
+                self printLines: {currentLocation getDescription. ''}.
+            ] ifFalse: [
+                Transcript show: 'You do not have enough energy to move.'; cr.
+            ].
         ] ifNil: [
             self printLines: #('You cannot go there!' '').
         ].
     ]
 
+    take: aItemStr [
+        | itemTaken |
+        itemTaken := currentLocation removeItem: aItemStr amount: 1.
+        itemTaken ifTrue: [
+            inventory at: aItemStr put: 1.
+            self printLines: #('Item taken.' '').
+        ] ifFalse: [
+            self printLines: #('Item not present in location.' '').
+        ]
+    ]
+
+    inspect: aItemStr [
+        | itemAmount |
+        itemAmount := inventory at: aItemStr ifAbsent: [^ self printLines: #('You are not holding this item.' '')].
+        (itemAmount < 1) ifTrue: [
+            ^ self printLines: #('You are not holding this item.' '')
+        ].
+        self printLines: { (items at: aItemStr). '' }.
+    ]
+
     look [
         self printLines: {currentLocation getDescription. ''}.
     ]
+    rest [
+    | newEnergy |
 
+    newEnergy := energy + restingPace.
+    newEnergy <= maxEnergy ifTrue: [
+        energy := newEnergy.
+        Transcript
+            show: 'You take a rest and feel better. Your energy is now ', newEnergy printString, '.';
+            cr.
+    ] ifFalse: [
+        Transcript show: 'You are already fully rested.'; cr.
+    ].
+    ]
+    getEnergy [
+    self printLines: {'Current energy: ', energy asString. ''}.
+    ]
     run [
         | cmdArr cmdName isUnknown |
 
@@ -205,6 +251,25 @@ Object subclass: Location [
 
             cmdName = 'look' ifTrue: [
                 self look.
+                isUnknown := false.
+            ].
+
+            cmdName = 'rest' ifTrue: [
+                self rest.
+                isUnknown := false.
+            ].
+            cmdName = 'getEnergy' ifTrue: [
+                self getEnergy.
+                isUnknown := false.
+            ].
+
+            cmdName = 'take' ifTrue: [
+                self take: (cmdArr at: 2).
+                isUnknown := false.
+            ].
+
+            cmdName = 'inspect' ifTrue: [
+                self inspect: (cmdArr at: 2).
                 isUnknown := false.
             ].
 

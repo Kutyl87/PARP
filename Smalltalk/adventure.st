@@ -1,5 +1,5 @@
 Object subclass: Game [
-    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel hall firstTunnel dealerRoom alligatorRoom endOfFirstTunnel waterfall secondTunnel tunnelDiggers sideTunnel secondTunnel1 thirdTunnel synagogue |
+    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel hall firstTunnel dealerRoom alligatorRoom endOfFirstTunnel waterfall secondTunnel tunnelDiggers sideTunnel secondTunnel1 thirdTunnel synagogue items |
 
     Game class >> new [
         ^ super new init
@@ -71,9 +71,9 @@ Object subclass: Game [
         thirdTunnel addPath: 'forward' destination: synagogue.
         
         synagogue addPath: 'back' destination: thirdTunnel.
-        entrance addObjectItem: 'note' count: 1 description: 'You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely.'.
+        entrance addItem: 'note' amount: 1.
         isGameOver := false.
-        inventory := OrderedCollection new.
+        inventory := Dictionary new.
         currentLocation := entrance.
         energy := 100.
         maxEnergy := 100.
@@ -81,6 +81,8 @@ Object subclass: Game [
         restingPace := 10.
         riddle := Array new: 2.
         riddle at: 1 put: 0; at: 2 put: 0.
+        items := Dictionary new.
+        items at: 'note' put: 'You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely.'.
         ^ self
     ]
 
@@ -144,6 +146,26 @@ Object subclass: Game [
         ].
     ]
 
+    take: aItemStr [
+        | itemTaken |
+        itemTaken := currentLocation removeItem: aItemStr amount: 1.
+        itemTaken ifTrue: [
+            inventory at: aItemStr put: 1.
+            self printLines: #('Item taken.' '').
+        ] ifFalse: [
+            self printLines: #('Item not present in location.' '').
+        ]
+    ]
+
+    inspect: aItemStr [
+        | itemAmount |
+        itemAmount := inventory at: aItemStr ifAbsent: [^ self printLines: #('You are not holding this item.' '')].
+        (itemAmount < 1) ifTrue: [
+            ^ self printLines: #('You are not holding this item.' '')
+        ].
+        self printLines: { (items at: aItemStr). '' }.
+    ]
+
     look [
         self printLines: {currentLocation getDescription. ''}.
     ]
@@ -193,6 +215,7 @@ Object subclass: Game [
                 self look.
                 isUnknown := false.
             ].
+
             cmdName = 'rest' ifTrue: [
                 self rest.
                 isUnknown := false.
@@ -201,6 +224,17 @@ Object subclass: Game [
                 self getEnergy.
                 isUnknown := false.
             ].
+
+            cmdName = 'take' ifTrue: [
+                self take: (cmdArr at: 2).
+                isUnknown := false.
+            ].
+
+            cmdName = 'inspect' ifTrue: [
+                self inspect: (cmdArr at: 2).
+                isUnknown := false.
+            ].
+
             isUnknown ifTrue: [
                 self printLines: #('Unknown command.' '').
             ].
