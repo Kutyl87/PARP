@@ -1,7 +1,0 @@
-<package>
-  <name>adventure</name>
-  <namespace>adventure</namespace>
-
-  <filein>adventure.st</filein>
-  <filein>locations.st</filein>
-</package>
