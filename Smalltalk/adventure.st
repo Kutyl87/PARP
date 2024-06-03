@@ -125,11 +125,20 @@ Object subclass: Game [
 
     go: dirStr [
         | destination |
+
         destination := currentLocation getDestination: dirStr.
         destination ifNotNil: [
-            currentLocation := destination.
-            self printLines: #('Went to the new location.' '').
-            self printLines: {currentLocation getDescription. ''}.
+            | energyCost |
+            energyCost := 10.  "Adjust this value as needed"
+            energy >= energyCost ifTrue: [
+                energy := energy - energyCost.
+                self printLines: {'Current energy: ', energy asString. ''}.
+                currentLocation := destination.
+                self printLines: #('Went to the new location.' '').
+                self printLines: {currentLocation getDescription. ''}.
+            ] ifFalse: [
+                Transcript show: 'You do not have enough energy to move.'; cr.
+            ].
         ] ifNil: [
             self printLines: #('You cannot go there!' '').
         ].
@@ -138,7 +147,22 @@ Object subclass: Game [
     look [
         self printLines: {currentLocation getDescription. ''}.
     ]
+    rest [
+    | newEnergy |
 
+    newEnergy := energy + restingPace.
+    newEnergy <= maxEnergy ifTrue: [
+        energy := newEnergy.
+        Transcript
+            show: 'You take a rest and feel better. Your energy is now ', newEnergy printString, '.';
+            cr.
+    ] ifFalse: [
+        Transcript show: 'You are already fully rested.'; cr.
+    ].
+    ]
+    getEnergy [
+    self printLines: {'Current energy: ', energy asString. ''}.
+    ]
     run [
         | cmdArr cmdName isUnknown |
 
@@ -169,7 +193,14 @@ Object subclass: Game [
                 self look.
                 isUnknown := false.
             ].
-
+            cmdName = 'rest' ifTrue: [
+                self rest.
+                isUnknown := false.
+            ].
+            cmdName = 'getEnergy' ifTrue: [
+                self getEnergy.
+                isUnknown := false.
+            ].
             isUnknown ifTrue: [
                 self printLines: #('Unknown command.' '').
             ].
