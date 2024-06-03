@@ -1,134 +1,109 @@
-"The germ of a text adventure game
-Marcin Szlenk 2024"
-
-"Game class
-
-Responsibilities:
-* print/read outputs/inputs
-* handle game loop
-* handle 'instructions' and 'halt' commands
-
-Collaborators:
-* ..."
-
 Object subclass: Game [
-    | isGameOver inventory currentLocation locations events energy maxEnergy dead restingPace riddle |
+    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel |
 
-    introductionText := #(
-        ''
-    ).
-
-    instructionsText := #(
-        'Available commands are:'
-        ''
-        'instructions  -- to see these instructions.'
-        'go [direction]'
-        'Available directions: forward, back, left, right'
-        'take [object]'
-        'inspect [object]'
-        'craft [object]'
-        'look'
-        'inventory     -- to see items in your inventory'
-        'rest          -- to regenerate energy'
-        'quit          -- to end the game and quit.'
-        'buy           -- to buy an item'
-        ''
-    ).
- 
     Game class >> new [
-        | g |
-        g := super new.
-        g init.
-        ^g
+        ^ super new init
     ]
 
     init [
+        entrance := Location new init: 'entrance' description: 'entrance to tunnel'.
+        inFrontOfFirstTunnel := Location new init: 'in front of first tunnel' description: 'in front of first tunnel'.
+        inFrontOfSecondTunnel := Location new init: 'in front of second tunnel' description: 'in front of second tunnel'.
+        inFrontOfThirdTunnel := Location new init: 'in front of third tunnel' description: 'in front of third tunnel'.
+
+        entrance addPath: 'forward' destination: inFrontOfFirstTunnel.
+
         isGameOver := false.
         inventory := OrderedCollection new.
-        currentLocation := #{inFrontOfFirstTunnel}.
+        currentLocation := entrance.
         energy := 100.
         maxEnergy := 100.
         dead := false.
         restingPace := 10.
-        riddle := Array new: 2. 
+        riddle := Array new: 2.
         riddle at: 1 put: 0; at: 2 put: 0.
+        ^ self
     ]
 
-    "Print strings from array in separate lines."
     printLines: anArray [
-        anArray do: [ :string | Transcript show: string; cr ]
+        anArray do: [ :string | Transcript show: string; cr ].
     ]
 
     printIntroduction [
-       self printLines: introductionText.
+        self printLines: #('Welcome to the Adventure Game!').
     ]
 
     printInstructions [
-        self printLines: instructionsText.
+        self printLines: #(
+            'Available commands are:'
+            ''
+            'instructions  -- to see these instructions.'
+            'go [direction]'
+            'Available directions: forward, back, left, right'
+            'take [object]'
+            'inspect [object]'
+            'craft [object]'
+            'look'
+            'inventory     -- to see items in your inventory'
+            'rest          -- to regenerate energy'
+            'quit          -- to end the game and quit.'
+            'buy           -- to buy an item'
+            ''
+        ).
     ]
 
     readCommand [
         | cmdIn |
         Transcript show: '> '.
         cmdIn := FileStream stdin nextLine.
-        ^ cmdIn substrings
+        ^ cmdIn substrings.
     ]
 
     getCurrentLocation [
-        ^ currentLocation
+        ^ currentLocation.
     ]
-
-    "Movement"
 
     go: dirStr [
         | destination |
         destination := currentLocation getDestination: dirStr.
         destination ifNotNil: [
             currentLocation := destination.
-            self printLines: #('Went to ').
-        ]
-        ifNil: [
+            self printLines: #('Went to the new location.' '')
+        ] ifNil: [
             self printLines: #('You cannot go there!' '').
         ].
-
     ]
 
-
-
-    "Run the game."
     run [
-        | cmdArr cmdName cmdTaill isUnknown |
+        | cmdArr cmdName isUnknown |
 
         self printIntroduction.
         self printInstructions.
 
-        "Game loop."
         [isGameOver] whileFalse: [
-
             isUnknown := true.
             cmdArr := self readCommand.
             cmdName := cmdArr first.
-            cmdArr display.            
 
             cmdName = 'instructions' ifTrue: [
                 self printInstructions.
-                isUnknown := false
+                isUnknown := false.
             ].
 
             cmdName = 'quit' ifTrue: [
                 isGameOver := true.
-                isUnknown := false
+                isUnknown := false.
             ].
 
             cmdName = 'go' ifTrue: [
-                self go: [cmdArr at: 2].
-                isUnknown := false
+                self go: (cmdArr at: 2).
+                isUnknown := false.
             ].
-                
+
             isUnknown ifTrue: [
-                self printLines: #('Unknown command.' '')
-            ]
-        ]
+                self printLines: #('Unknown command.' '').
+            ].
+        ].
     ]
 ]
 
