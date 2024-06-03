@@ -68,10 +68,15 @@ Object subclass: Game [
         destination := currentLocation getDestination: dirStr.
         destination ifNotNil: [
             currentLocation := destination.
-            self printLines: #('Went to the new location.' '')
+            self printLines: #('Went to the new location.' '').
+            self printLines: {currentLocation getDescription. ''}.
         ] ifNil: [
             self printLines: #('You cannot go there!' '').
         ].
+    ]
+
+    look [
+        self printLines: {currentLocation getDescription. ''}.
     ]
 
     run [
@@ -97,6 +102,11 @@ Object subclass: Game [
 
             cmdName = 'go' ifTrue: [
                 self go: (cmdArr at: 2).
+                isUnknown := false.
+            ].
+
+            cmdName = 'look' ifTrue: [
+                self look.
                 isUnknown := false.
             ].
 

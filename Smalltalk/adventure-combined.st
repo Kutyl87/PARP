@@ -12,6 +12,10 @@ Object subclass: Location [
         ^ name
     ]
 
+    getDescription [
+        ^ description
+    ]
+
     addPath: aDirStr destination: aLocation [
         paths at: aDirStr put: aLocation.
     ]
@@ -102,10 +106,15 @@ Object subclass: Location [
         destination := currentLocation getDestination: dirStr.
         destination ifNotNil: [
             currentLocation := destination.
-            self printLines: #('Went to the new location.' '')
+            self printLines: #('Went to the new location.' '').
+            self printLines: {currentLocation getDescription. ''}.
         ] ifNil: [
             self printLines: #('You cannot go there!' '').
         ].
+    ]
+
+    look [
+        self printLines: {currentLocation getDescription. ''}.
     ]
 
     run [
@@ -131,6 +140,11 @@ Object subclass: Location [
 
             cmdName = 'go' ifTrue: [
                 self go: (cmdArr at: 2).
+                isUnknown := false.
+            ].
+
+            cmdName = 'look' ifTrue: [
+                self look.
                 isUnknown := false.
             ].
 

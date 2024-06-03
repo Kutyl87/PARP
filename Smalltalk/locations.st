@@ -12,6 +12,10 @@ Object subclass: Location [
         ^ name
     ]
 
+    getDescription [
+        ^ description
+    ]
+
     addPath: aDirStr destination: aLocation [
         paths at: aDirStr put: aLocation.
     ]
