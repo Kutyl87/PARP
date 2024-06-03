@@ -23,7 +23,14 @@ Object subclass: Location [
     getDestination: aDirStr [
         ^ paths at: aDirStr ifAbsent: [nil].
     ]
-
+    addObjectItem: aName count: aCount description: aDescription [
+        | item |
+        item := Dictionary new.
+        item at: 'name' put: aName.
+        item at: 'count' put: aCount.
+        item at: 'description' put: aDescription.
+        items at: aName put: item.
+    ]
     addItem: aItemStr amount: anInt [
         items at: aItemStr put: anInt.
     ]

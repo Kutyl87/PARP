@@ -71,7 +71,7 @@ Object subclass: Game [
         thirdTunnel addPath: 'forward' destination: synagogue.
         
         synagogue addPath: 'back' destination: thirdTunnel.
-
+        entrance addObjectItem: 'note' count: 1 description: 'You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely.'.
         isGameOver := false.
         inventory := OrderedCollection new.
         currentLocation := entrance.
