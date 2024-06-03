@@ -71,7 +71,7 @@ Object subclass: Game [
         thirdTunnel addPath: 'forward' destination: synagogue.
         
         synagogue addPath: 'back' destination: thirdTunnel.
-        entrance addItem: 'note' amount: 1.
+        entrance addItem: 'note' amount: 2.
         isGameOver := false.
         inventory := Dictionary new.
         currentLocation := entrance.
@@ -148,11 +148,12 @@ Object subclass: Game [
     ]
 
     take: aItemStr [
-        | itemTaken |
+        | itemTaken itemAmount |
         itemTaken := currentLocation removeItem: aItemStr amount: 1.
         itemTaken ifTrue: [
-            inventory at: aItemStr put: 1.
             self printLines: #('Item taken.' '').
+            itemAmount := inventory at: aItemStr ifAbsent: [^ inventory at: aItemStr put: 1.].
+            inventory at: aItemStr put: itemAmount + 1.
         ] ifFalse: [
             self printLines: #('Item not present in location.' '').
         ]
@@ -165,6 +166,14 @@ Object subclass: Game [
             ^ self printLines: #('You are not holding this item.' '')
         ].
         self printLines: { (items at: aItemStr). '' }.
+    ]
+
+    printInventory [
+        self printLines: #('Inventory:').
+        inventory keysAndValuesDo: [ :key :value |
+            Transcript show: value printString, ' ', key.
+        ].
+        self printLines: #('').
     ]
 
     look [
@@ -238,6 +247,11 @@ Object subclass: Game [
 
             cmdName = 'inspect' ifTrue: [
                 self inspect: (cmdArr at: 2).
+                isUnknown := false.
+            ].
+
+            cmdName = 'inventory' ifTrue: [
+                self printInventory.
                 isUnknown := false.
             ].
 

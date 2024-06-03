@@ -109,7 +109,7 @@ Object subclass: Location [
         thirdTunnel addPath: 'forward' destination: synagogue.
         
         synagogue addPath: 'back' destination: thirdTunnel.
-        entrance addItem: 'note' amount: 1.
+        entrance addItem: 'note' amount: 2.
         isGameOver := false.
         inventory := Dictionary new.
         currentLocation := entrance.
@@ -170,7 +170,7 @@ Object subclass: Location [
         destination ifNotNil: [
             | energyCost |
             energyCost := 10.  "Adjust this value as needed"
-            energy >= energyCost ifTrue: [
+            energy > energyCost ifTrue: [
                 energy := energy - energyCost.
                 self printLines: {'Current energy: ', energy asString. ''}.
                 currentLocation := destination.
@@ -178,6 +178,7 @@ Object subclass: Location [
                 self printLines: {currentLocation getDescription. ''}.
             ] ifFalse: [
                 Transcript show: 'You do not have enough energy to move.'; cr.
+                self die.
             ].
         ] ifNil: [
             self printLines: #('You cannot go there!' '').
@@ -185,11 +186,12 @@ Object subclass: Location [
     ]
 
     take: aItemStr [
-        | itemTaken |
+        | itemTaken itemAmount |
         itemTaken := currentLocation removeItem: aItemStr amount: 1.
         itemTaken ifTrue: [
-            inventory at: aItemStr put: 1.
             self printLines: #('Item taken.' '').
+            itemAmount := inventory at: aItemStr ifAbsent: [^ inventory at: aItemStr put: 1.].
+            inventory at: aItemStr put: itemAmount + 1.
         ] ifFalse: [
             self printLines: #('Item not present in location.' '').
         ]
@@ -204,8 +206,21 @@ Object subclass: Location [
         self printLines: { (items at: aItemStr). '' }.
     ]
 
+    printInventory [
+        self printLines: #('Inventory:').
+        inventory keysAndValuesDo: [ :key :value |
+            Transcript show: value printString, ' ', key.
+        ].
+        self printLines: #('').
+    ]
+
     look [
         self printLines: {currentLocation getDescription. ''}.
+    ]
+    die [
+        dead := true.
+        isGameOver := true.
+        Transcript show: 'You died! Game Over.'; cr.
     ]
     rest [
     | newEnergy |
@@ -273,14 +288,16 @@ Object subclass: Location [
                 isUnknown := false.
             ].
 
+            cmdName = 'inventory' ifTrue: [
+                self printInventory.
+                isUnknown := false.
+            ].
+
             isUnknown ifTrue: [
                 self printLines: #('Unknown command.' '').
             ].
         ].
     ]
 ]
-
-Game new run.
-
 
 Game new run.
