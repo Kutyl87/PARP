@@ -1,5 +1,5 @@
 Object subclass: Game [
-    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel hall firstTunnel dealerRoom alligatorRoom endOfFirstTunnel waterfall secondTunnel tunnelDiggers sideTunnel secondTunnel1 thirdTunnel synagogue items |
+    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel hall firstTunnel dealerRoom alligatorRoom endOfFirstTunnel waterfall secondTunnel tunnelDiggers sideTunnel secondTunnel1 thirdTunnel synagogue items travellingCost holdingFlute|
 
     Game class >> new [
         ^ super new init
@@ -104,6 +104,7 @@ Object subclass: Game [
         
         synagogue addPath: 'back' destination: thirdTunnel.
         entrance addItem: 'note' amount: 2.
+        alligatorRoom addItem: 'Aligator' amount: 1.
         isGameOver := false.
         inventory := Dictionary new.
         currentLocation := entrance.
@@ -111,9 +112,11 @@ Object subclass: Game [
         maxEnergy := 100.
         dead := false.
         restingPace := 10.
+        travellingCost:=10.
         riddle := Array new: 2.
         riddle at: 1 put: 0; at: 2 put: 0.
         items := Dictionary new.
+        holdingFlute := false.
         items at: 'note' put: 'You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely.'.
         ^ self
     ]
@@ -163,7 +166,7 @@ Object subclass: Game [
         destination := currentLocation getDestination: dirStr.
         destination ifNotNil: [
             | energyCost |
-            energyCost := 10.  "Adjust this value as needed"
+            energyCost := travellingCost.  "Adjust this value as needed"
             energy > energyCost ifTrue: [
                 energy := energy - energyCost.
                 self printLines: {'Current energy: ', energy asString. ''}.
@@ -216,6 +219,24 @@ Object subclass: Game [
         isGameOver := true.
         Transcript show: 'You died! Game Over.'; cr.
     ]
+    fightAlligator [
+        | E ELoss NewE |
+
+        self getCurrentLocation = alligatorRoom ifTrue: [
+            E := energy.
+            ELoss := (10 + (1 to: 20) atRandom).  "Random energy loss between 40 and 50"
+            NewE := E - ELoss.
+            energy := NewE.
+            self printLines: {'You have fought with an alligator. You have ', NewE asString, ' energy left.'}.
+            (NewE <= 0) ifTrue: [
+                self die.
+            ] ifFalse: [
+                self improveResting.
+            ].
+        ] ifFalse: [
+            self printLines: #('You are not in the alligator room.' '').
+        ].
+    ]
     rest [
     | newEnergy |
 
@@ -228,6 +249,51 @@ Object subclass: Game [
     ] ifFalse: [
         Transcript show: 'You are already fully rested.'; cr.
     ].
+    ]
+    improveResting [
+    | RP NewRP |
+
+    RP := restingPace.
+    NewRP := RP + 10.
+    restingPace := NewRP.
+    self printLines: {'You have improved your resting pace. It is now ', NewRP asString, '.'}.
+    ]
+    buyFlute [
+        | currentEnergy newEnergy newMaxEnergy |
+
+        currentEnergy := energy.
+        currentEnergy >= 50 ifFalse: [
+            Transcript show: 'You don''t have enough energy.'; cr.
+            ^ false
+        ].
+        
+        newEnergy := currentEnergy - 50.
+        energy := newEnergy.
+
+        newMaxEnergy := maxEnergy - 30.
+        maxEnergy := newMaxEnergy.
+        inventory at: 'flute' put: 1.
+        self printLines: #('Item taken.' '').
+        holdingFlute := true.
+        Transcript
+            show: 'You have bought a magic flute. You have ', newEnergy printString, ' energy left.';
+            cr.
+        ^ true
+    ]
+    useFlute [
+        (holdingFlute and: [ self getCurrentLocation = alligatorRoom ]) ifTrue: [
+            Transcript
+                show: 'You have used a magic flute. The alligator obeys you now. You can use him as a form of transport.';
+                cr.
+            travellingCost := 0.
+            inventory at: 'Aligator' put: 1.
+            ^ true
+        ] ifFalse: [
+            Transcript
+                show: 'You cannot use the flute here.';
+                cr.
+            ^ false
+        ].
     ]
     getEnergy [
     self printLines: {'Current energy: ', energy asString. ''}.
@@ -271,7 +337,18 @@ Object subclass: Game [
                 self getEnergy.
                 isUnknown := false.
             ].
-
+            cmdName = 'fightAligator' ifTrue: [
+                self fightAlligator.
+                isUnknown := false.
+            ].
+            cmdName = 'buyFlute' ifTrue: [
+                self buyFlute.
+                isUnknown := false.
+            ].
+            cmdName = 'useFlute' ifTrue: [
+                self useFlute.
+                isUnknown := false.
+            ].
             cmdName = 'take' ifTrue: [
                 self take: (cmdArr at: 2).
                 isUnknown := false.
