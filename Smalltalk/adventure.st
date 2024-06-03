@@ -187,10 +187,22 @@ Object subclass: Game [
     ] ifFalse: [
         Transcript show: 'You are already fully rested.'; cr.
     ].
+
     ]
+
     getEnergy [
     self printLines: {'Current energy: ', energy asString. ''}.
     ]
+
+    ratKingAccept [
+
+    ]
+
+    ratKingReject [
+        self printLines: #('Fare well, then.').
+        self go: 'back'.
+    ]
+
     run [
         | cmdArr cmdName isUnknown |
 
@@ -238,6 +250,16 @@ Object subclass: Game [
 
             cmdName = 'inspect' ifTrue: [
                 self inspect: (cmdArr at: 2).
+                isUnknown := false.
+            ].
+
+            cmdName = 'yes' ifTrue: [
+                self ratKingAccept.
+                isUnknown := false.
+            ].
+
+            (cmdName = 'no' and: [currentLocation == sideTunnel]) ifTrue: [
+                self ratKingReject.
                 isUnknown := false.
             ].
 

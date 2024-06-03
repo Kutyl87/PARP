@@ -170,7 +170,7 @@ Object subclass: Location [
         destination ifNotNil: [
             | energyCost |
             energyCost := 10.  "Adjust this value as needed"
-            energy >= energyCost ifTrue: [
+            energy > energyCost ifTrue: [
                 energy := energy - energyCost.
                 self printLines: {'Current energy: ', energy asString. ''}.
                 currentLocation := destination.
@@ -178,6 +178,7 @@ Object subclass: Location [
                 self printLines: {currentLocation getDescription. ''}.
             ] ifFalse: [
                 Transcript show: 'You do not have enough energy to move.'; cr.
+                self die.
             ].
         ] ifNil: [
             self printLines: #('You cannot go there!' '').
@@ -207,6 +208,11 @@ Object subclass: Location [
     look [
         self printLines: {currentLocation getDescription. ''}.
     ]
+    die [
+        dead := true.
+        isGameOver := true.
+        Transcript show: 'You died! Game Over.'; cr.
+    ]
     rest [
     | newEnergy |
 
@@ -219,10 +225,22 @@ Object subclass: Location [
     ] ifFalse: [
         Transcript show: 'You are already fully rested.'; cr.
     ].
+
     ]
+
     getEnergy [
     self printLines: {'Current energy: ', energy asString. ''}.
     ]
+
+    ratKingAccept [
+
+    ]
+
+    ratKingReject [
+        self printLines: #('Fare well, then.').
+        self go: 'back'.
+    ]
+
     run [
         | cmdArr cmdName isUnknown |
 
@@ -273,14 +291,21 @@ Object subclass: Location [
                 isUnknown := false.
             ].
 
+            cmdName = 'yes' ifTrue: [
+                self ratKingAccept.
+                isUnknown := false.
+            ].
+
+            (cmdName = 'no' and: [currentLocation == sideTunnel]) ifTrue: [
+                self ratKingReject.
+                isUnknown := false.
+            ].
+
             isUnknown ifTrue: [
                 self printLines: #('Unknown command.' '').
             ].
         ].
     ]
 ]
-
-Game new run.
-
 
 Game new run.
