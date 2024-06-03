@@ -1,5 +1,5 @@
 Object subclass: Game [
-    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel hall firstTunnel dealerRoom alligatorRoom endOfFirstTunnel waterfall secondTunnel tunnelDiggers sideTunnel secondTunnel1 thirdTunnel synagogue items travellingCost holdingFlute|
+    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel hall firstTunnel dealerRoom alligatorRoom endOfFirstTunnel waterfall secondTunnel tunnelDiggers sideTunnel secondTunnel1 thirdTunnel synagogue items travellingCost holdingFlute ratKingDefeated |
 
     Game class >> new [
         ^ super new init
@@ -117,6 +117,7 @@ Object subclass: Game [
         riddle at: 1 put: 0; at: 2 put: 0.
         items := Dictionary new.
         holdingFlute := false.
+        ratKingDefeated := false.
         items at: 'note' put: 'You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely.'.
         ^ self
     ]
@@ -228,6 +229,8 @@ Object subclass: Game [
             NewE := E - ELoss.
             energy := NewE.
             self printLines: {'You have fought with an alligator. You have ', NewE asString, ' energy left.'}.
+            alligatorRoom changeDescription: 'The room where you found the aligator is now empty.'.
+
             (NewE <= 0) ifTrue: [
                 self die.
             ] ifFalse: [
@@ -314,13 +317,20 @@ Object subclass: Game [
             (answer = (riddle1 +  riddle2) asString) 
             ifFalse: [
                 Transcript show: 'Wrong! Your life ends here!!'.
-                self die.
+                self printLines: #(''). 
+                ObjectMemory quit.
             ] ifTrue:[
                 Transcript show: 'Correct!'.
             ].
         ].
 
         sideTunnel addItem: 'stoneTabletHalf' amount: 1.
+        sideTunnel changeDescription: 'You are in a narrow, crudely built tunnel. The miners have returned and continue to work.'.
+
+        tunnelDiggers addItem: 'stoneTabletHalf' amount: 1.
+        tunnelDiggers changeDescription: 'The miners happily greet you. They offer you a broken half of a stone tablet as thanks. You can feel magical energy from it.\nWould you like to take the tablet? (Use takeStoneTabletHalf to take it)'.
+
+        ratKingDefeated = true.
         self printLines: #('This was the last riddle. You have answered them all! I shall leave now. Before I go, take this for you gallant efforts.' 
         'The Great Rat King hands you a broken stone tablet. Do you want to take it? Type take stoneTabletHalf to take it').
 
@@ -332,7 +342,7 @@ Object subclass: Game [
     ]
 
     run [
-        | cmdArr cmdName isUnknown |
+        | cmdArr cmdName isUnknown cmdArrSize |
 
         self printIntroduction.
         self printInstructions.
@@ -341,6 +351,7 @@ Object subclass: Game [
             isUnknown := true.
             cmdArr := self readCommand.
             cmdName := cmdArr first.
+            cmdArrSize := cmdArr size.
 
             cmdName = 'instructions' ifTrue: [
                 self printInstructions.
@@ -352,7 +363,7 @@ Object subclass: Game [
                 isUnknown := false.
             ].
 
-            cmdName = 'go' ifTrue: [
+            (cmdName = 'go' & (cmdArrSize > 1)) ifTrue: [
                 self go: (cmdArr at: 2).
                 isUnknown := false.
             ].
@@ -397,12 +408,12 @@ Object subclass: Game [
                 isUnknown := false.
             ].
 
-            (cmdName = 'yes' and: [currentLocation == sideTunnel]) ifTrue: [
+            (cmdName = 'yes' and: [currentLocation = sideTunnel and: [ratKingDefeated = false]]) ifTrue: [
                 self ratKingAccept.
                 isUnknown := false.
             ].
 
-            (cmdName = 'no' and: [currentLocation == sideTunnel]) ifTrue: [
+            (cmdName = 'no' and: [currentLocation = sideTunnel and: [ratKingDefeated = false]]) ifTrue: [
                 self ratKingReject.
                 isUnknown := false.
             ].
