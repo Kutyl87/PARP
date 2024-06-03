@@ -301,6 +301,28 @@ Object subclass: Game [
     ]
 
     ratKingAccept [
+        self printLines: #('Very well then').
+        (1 to: 3) do: [ :x |
+            | riddle1 riddle2 answer|
+
+            riddle1 := (1 to: 10) atRandom.
+            riddle2 := (1 to: 10) atRandom.
+
+            self printLines: {'What is ', riddle1 asString, ' + ', riddle2 asString, '? '}.
+            answer := (self readCommand) first.
+
+            (answer = (riddle1 +  riddle2) asString) 
+            ifFalse: [
+                Transcript show: 'Wrong! Your life ends here!!'.
+                self die.
+            ] ifTrue:[
+                Transcript show: 'Correct!'.
+            ].
+        ].
+
+        sideTunnel addItem: 'stoneTabletHalf' amount: 1.
+        self printLines: #('This was the last riddle. You have answered them all! I shall leave now. Before I go, take this for you gallant efforts.' 
+        'The Great Rat King hands you a broken stone tablet. Do you want to take it? Type take stoneTabletHalf to take it').
 
     ]
 
@@ -375,7 +397,7 @@ Object subclass: Game [
                 isUnknown := false.
             ].
 
-            cmdName = 'yes' ifTrue: [
+            (cmdName = 'yes' and: [currentLocation == sideTunnel]) ifTrue: [
                 self ratKingAccept.
                 isUnknown := false.
             ].
