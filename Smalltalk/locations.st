@@ -16,6 +16,10 @@ Object subclass: Location [
         ^ description
     ]
 
+    changeDescription: aDescription [
+        description := aDescription.
+    ]
+
     addPath: aDirStr destination: aLocation [
         paths at: aDirStr put: aLocation.
     ]
