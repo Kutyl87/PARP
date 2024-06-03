@@ -132,7 +132,7 @@ Object subclass: Game [
         destination ifNotNil: [
             | energyCost |
             energyCost := 10.  "Adjust this value as needed"
-            energy >= energyCost ifTrue: [
+            energy > energyCost ifTrue: [
                 energy := energy - energyCost.
                 self printLines: {'Current energy: ', energy asString. ''}.
                 currentLocation := destination.
@@ -140,6 +140,7 @@ Object subclass: Game [
                 self printLines: {currentLocation getDescription. ''}.
             ] ifFalse: [
                 Transcript show: 'You do not have enough energy to move.'; cr.
+                self die.
             ].
         ] ifNil: [
             self printLines: #('You cannot go there!' '').
@@ -168,6 +169,11 @@ Object subclass: Game [
 
     look [
         self printLines: {currentLocation getDescription. ''}.
+    ]
+    die [
+        dead := true.
+        isGameOver := true.
+        Transcript show: 'You died! Game Over.'; cr.
     ]
     rest [
     | newEnergy |
@@ -241,8 +247,5 @@ Object subclass: Game [
         ].
     ]
 ]
-
-Game new run.
-
 
 Game new run.
