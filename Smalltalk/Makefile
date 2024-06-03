@@ -1,3 +1,3 @@
 run:
-	cat locations.st adventure.st > adventure-combined.st
-	gst adventure-combined.st
+	cat locations.st adventure.st > build/adventure-combined.st
+	gst build/adventure-combined.st
