@@ -119,6 +119,9 @@ Object subclass: Game [
         holdingFlute := false.
         ratKingDefeated := false.
         items at: 'note' put: 'You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely.'.
+        items at: 'stoneTabletHalf' put: 'The half of the stone tablet gives a weak feeling of magic power. Can be connected with the other half using craft stoneTablet.'.
+        items at: 'stoneTablet' put: 'The stone tablet gives a strong feeling of magic power.'.
+
         recipes := Dictionary new.
 
         stoneTabetRecipe := Dictionary new.
@@ -194,6 +197,11 @@ Object subclass: Game [
 
     take: aItemStr [
         | itemTaken itemAmount |
+        (currentLocation = tunnelDiggers and: [ratKingDefeated and: [(currentLocation at: 'stoneTabletHalf') = 1]]) ifTrue: [
+            tunnelDiggers setDescription: 'You stand at the entrance to the side tunnel. The miners have moved back into the side tunnel to keep digging.'.
+        ] .
+
+
         itemTaken := currentLocation removeItem: aItemStr amount: 1.
         itemTaken ifTrue: [
             self printLines: #('Item taken.' '').
@@ -312,6 +320,17 @@ Object subclass: Game [
         ((inventory at: 'stoneTablet') >= 1) ifTrue: [
             thirdTunnel addPath: 'forward' destination: synagogue.
             self printLines: #('The door is unlocked' '').
+            thirdTunnel setDescription: 'Navigating the shadowy length of the third tunnel, 
+            you notice the air gradually fill with an unplaceable but comforting aroma, 
+            reminiscent of ancient texts and whispered secrets. The walls, 
+            subtly adorned with symbols that speak of community and stars aligning, lead you on with the
+            promise of discovery. A faint, melodic hum, akin to distant singing,
+            encourages each step forward, hinting at the existence of a sacred space
+            ahead. As the passage unfolds into a serene chamber bathed in a soft,
+            ethereal light, the ambiance suggests you''re on the verge of entering a
+            place of deep cultural significance, perhaps a sanctuary where history and
+            spirituality converge in silent communion.'.
+            self look.
         ].
 
     ]
