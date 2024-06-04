@@ -1,11 +1,12 @@
 Object subclass: Game [
-    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel hall firstTunnel dealerRoom alligatorRoom endOfFirstTunnel waterfall secondTunnel tunnelDiggers sideTunnel secondTunnel1 thirdTunnel synagogue items travellingCost holdingFlute ratKingDefeated |
+    | isGameOver inventory currentLocation energy maxEnergy dead restingPace riddle entrance inFrontOfFirstTunnel inFrontOfSecondTunnel inFrontOfThirdTunnel hall firstTunnel dealerRoom alligatorRoom endOfFirstTunnel waterfall secondTunnel tunnelDiggers sideTunnel secondTunnel1 thirdTunnel synagogue items travellingCost holdingFlute ratKingDefeated recipes |
 
     Game class >> new [
         ^ super new init
     ]
 
     init [
+        | stoneTabetRecipe|
         entrance := Location new init: 'Entrance' description: [ :game |
             'You are in the entrance. You notice doors behind you, and you feel pain inside your head. There is a small note at the floor. Maybe you should inspect it?'
         ].
@@ -119,6 +120,14 @@ Object subclass: Game [
         holdingFlute := false.
         ratKingDefeated := false.
         items at: 'note' put: 'You read the note from a lost wanderer. It says: You are in a maze. You need to find a way out. There are 3 tunnels. The first one is very dangerous. The second one has a light at the end - thats the path you should take. The third one may hold a secret. Choose wisely.'.
+        recipes := Dictionary new.
+
+        stoneTabetRecipe := Dictionary new.
+        stoneTabetRecipe at: 'stoneTabletHalf' put: 2.
+
+        recipes at: 'stoneTablet' put: stoneTabetRecipe.
+
+        inventory at: 'stoneTabletHalf' put: 2.
         ^ self
     ]
 
@@ -221,7 +230,7 @@ Object subclass: Game [
         Transcript show: 'You died! Game Over.'; cr.
     ]
     fightAlligator [
-        | E ELoss NewE |
+        | E ELoss NewE newDescription |
 
         self getCurrentLocation = alligatorRoom ifTrue: [
             E := energy.
@@ -229,7 +238,7 @@ Object subclass: Game [
             NewE := E - ELoss.
             energy := NewE.
             self printLines: {'You have fought with an alligator. You have ', NewE asString, ' energy left.'}.
-            alligatorRoom changeDescription: 'The room where you found the aligator is now empty.'.
+            alligatorRoom setDescription: 'The room where you found the aligator is now empty.'.
 
             (NewE <= 0) ifTrue: [
                 self die.
@@ -299,6 +308,29 @@ Object subclass: Game [
         ].
     ]
 
+    craft: itemStr [
+        | recipe ingredients |
+
+        recipe := recipes at: itemStr.
+        
+        recipe keysAndValuesDo: [ :key :value|
+            (value >= (inventory at: key)) ifFalse: [
+                self printLines: #('You cannot craft this!' '').
+                ^ false.
+            ].
+        ].
+
+        recipe keysAndValuesDo: [ :key :value|
+            | oldAmount |
+            oldAmount := inventory at: key.
+            inventory at: key put: (oldAmount - value).
+        ].
+
+        inventory at: itemStr put: 1.
+        self printLines: #('Crafting succesful!' '').
+        ^ true  
+    ]
+
     getEnergy [
     self printLines: {'Current energy: ', energy asString. ''}.
     ]
@@ -317,18 +349,18 @@ Object subclass: Game [
             (answer = (riddle1 +  riddle2) asString) 
             ifFalse: [
                 Transcript show: 'Wrong! Your life ends here!!'.
-                self printLines: #(''). 
-                ObjectMemory quit.
+                isGameOver := true.
+                ^ false
             ] ifTrue:[
                 Transcript show: 'Correct!'.
             ].
         ].
-
+        
         sideTunnel addItem: 'stoneTabletHalf' amount: 1.
-        sideTunnel changeDescription: 'You are in a narrow, crudely built tunnel. The miners have returned and continue to work.'.
+        sideTunnel setDescription: 'You are in a narrow, crudely built tunnel. The miners have returned and continue to work.'.
 
         tunnelDiggers addItem: 'stoneTabletHalf' amount: 1.
-        tunnelDiggers changeDescription: 'The miners happily greet you. They offer you a broken half of a stone tablet as thanks. You can feel magical energy from it.\nWould you like to take the tablet? (Use takeStoneTabletHalf to take it)'.
+        tunnelDiggers setDescription: 'The miners happily greet you. They offer you a broken half of a stone tablet as thanks. You can feel magical energy from it. Would you like to take the tablet? (Use takeStoneTabletHalf to take it)'.
 
         ratKingDefeated = true.
         self printLines: #('This was the last riddle. You have answered them all! I shall leave now. Before I go, take this for you gallant efforts.' 
@@ -405,6 +437,11 @@ Object subclass: Game [
 
             cmdName = 'inventory' ifTrue: [
                 self printInventory.
+                isUnknown := false.
+            ].
+
+            cmdName = 'craft' ifTrue: [
+                self craft: (cmdArr at: 2).
                 isUnknown := false.
             ].
 
