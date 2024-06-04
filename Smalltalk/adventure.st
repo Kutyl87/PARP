@@ -50,7 +50,7 @@ Object subclass: Game [
             'You reach the end of the tunnel. The light you saw comes from a tiny hole in the left wall of the tunnel.'.
         ].
         thirdTunnel := Location new init: 'Third tunnel' description: [:game |
-            'Navigating the shadowy length of the third tunnel, you notice the air gradually fill with an unplaceable but comforting aroma, reminiscent of ancient texts and whispered secrets. The walls, subtly adorned with symbols that speak of community and stars aligning, lead you on with the promise of discovery. A faint, melodic hum, akin to distant singing, encourages each step forward, hinting at the existence of a sacred space ahead. As the passage unfolds into a serene chamber bathed in a soft, ethereal light, the ambiance suggests you are on the verge of entering a place of deep cultural significance, perhaps a sanctuary where history and spirituality converge in silent communion.'.
+            'You cannot open the door. There is no place to insert a key. Maybe a magic item can open them?'.
         ].
         synagogue := Location new init: 'Synagogue' description: [:game |
             'As you reach the end of the tunnel, the ambiance shifts dramatically. You find yourself in a spacious, time-honored synagogue. Sunlight streams through stained glass windows, casting a kaleidoscope of colors across the polished stone floor. The air is filled with a sense of peace and ancient wisdom. Rows of wooden pews lead your gaze to the ornate Ark at the far end, where the Torah scrolls are kept. You realize the journey through the tunnels was not just a test of survival, but a journey of discovery, leading you to this place of profound spiritual significance. Congratulations, you have found the hidden synagogue and completed your adventure!'.
@@ -101,7 +101,6 @@ Object subclass: Game [
         secondTunnel1 addPath: 'back' destination: tunnelDiggers.
         
         thirdTunnel addPath: 'back' destination: inFrontOfThirdTunnel.
-        thirdTunnel addPath: 'forward' destination: synagogue.
         
         synagogue addPath: 'back' destination: thirdTunnel.
         entrance addItem: 'note' amount: 2.
@@ -127,7 +126,8 @@ Object subclass: Game [
 
         recipes at: 'stoneTablet' put: stoneTabetRecipe.
 
-        inventory at: 'stoneTabletHalf' put: 2.
+        inventory at: 'stoneTablet' put: 1.
+
         ^ self
     ]
 
@@ -308,6 +308,14 @@ Object subclass: Game [
         ].
     ]
 
+    useTablet [
+        ((inventory at: 'stoneTablet') >= 1) ifTrue: [
+            thirdTunnel addPath: 'forward' destination: synagogue.
+            self printLines: #('The door is unlocked' '').
+        ].
+
+    ]
+
     craft: itemStr [
         | recipe ingredients |
 
@@ -445,10 +453,16 @@ Object subclass: Game [
                 isUnknown := false.
             ].
 
+            (cmdName = 'useTablet' and: [currentLocation = thirdTunnel]) ifTrue: [
+                self useTablet.
+                isUnknown := false.
+            ].
+
             (cmdName = 'yes' and: [currentLocation = sideTunnel and: [ratKingDefeated = false]]) ifTrue: [
                 self ratKingAccept.
                 isUnknown := false.
             ].
+
 
             (cmdName = 'no' and: [currentLocation = sideTunnel and: [ratKingDefeated = false]]) ifTrue: [
                 self ratKingReject.
